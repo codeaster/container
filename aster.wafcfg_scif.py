@@ -1,6 +1,6 @@
 def configure(self):
     opts = self.options
-    opts.parallel = True
+
     # self.env.append_value('CXXFLAGS', ['-D_GLIBCXX_USE_CXX11_ABI=0'])
     self.env['ADDMEM'] = 600
 
@@ -38,4 +38,3 @@ def configure(self):
     opts.enable_scotch = True
     opts.enable_mfront = True
     opts.enable_petsc = True
-

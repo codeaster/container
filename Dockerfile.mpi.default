@@ -5,8 +5,9 @@ ENV DEBIAN_FRONTEND noninteractive
 # Use same filesystem organisation as for Singularity Apps
 # https://www.sylabs.io/guides/3.2/user-guide/definition_files.html#apps
 
-# base system + prerequisites
-# seems better to repeat packages to show all dependencies of each prerequisite
+# Base system + prerequisites
+# Show all the dependencies of each prerequisite even if some packages are
+# repeated
 RUN mkdir /data && \
     apt-get update && \
     apt-get upgrade -y --with-new-pkgs -o Dpkg::Options::="--force-confold" && \
@@ -192,7 +193,7 @@ RUN cd /data && rm -rf asrun && \
     cp /data/asrun.external_configuration.py external_configuration.py && \
     python3 setup.py install --prefix=/scif/apps/asrun && \
     sed -i "s/mpi_get_procid_cmd : echo \$PMI_RANK/mpi_get_procid_cmd : echo \$OMPI_COMM_WORLD_RANK/" /scif/apps/asrun/etc/codeaster/asrun && \
-    printf "\nvers : testing:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
+    printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
 
 # disable automatic devtools environment sourcing
 ENV DEVTOOLS_COMPUTER_ID=None
@@ -211,7 +212,7 @@ RUN cd /data/codeaster/src && \
     export LD_LIBRARY_PATH=/scif/apps/tfel/lib && \
     export PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages && \
     ln -s /usr/bin/python3 /usr/local/bin/python && \
-    ./waf configure --use-config=scif --prefix=/scif/apps/aster --install-tests && \
+    ./waf configure --use-config=scif --enable-mpi --prefix=/scif/apps/aster --install-tests && \
     ./waf install
 
 # clean source directory

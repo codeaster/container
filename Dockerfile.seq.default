@@ -1,15 +1,18 @@
-FROM ubuntu:18.04
+FROM ubuntu:18.04 as builder
 
 ENV DEBIAN_FRONTEND noninteractive
 
 # Use same filesystem organisation as for Singularity Apps
 # https://www.sylabs.io/guides/3.2/user-guide/definition_files.html#apps
 
-# base system
+# Base system + prerequisites
+# Show all the dependencies of each prerequisite even if some packages are
+# repeated
 RUN mkdir /data && \
     apt-get update && \
     apt-get upgrade -y --with-new-pkgs -o Dpkg::Options::="--force-confold" && \
     apt-get install -y \
+		# base system \
         cmake \
         g++ \
         gcc \
@@ -17,21 +20,33 @@ RUN mkdir /data && \
         locales \
         make \
         mercurial \
-        wget && \
+        wget \
+		# added for... \
+		# hdf5 \
+        zlib1g-dev \
+		# med \
+		python3-dev \
+		# scotch \
+		bison \
+		flex \
+        zlib1g-dev \
+		# mumps \
+        libopenblas-dev \
+        python3-dev \
+        python3-numpy \
+		# tfel
+		libboost-numpy-dev \
+		libboost-python-dev \
+		patch \
+		# asrun
+        gdb \
+        tk \
+        xterm \
+		&& \
     locale-gen en_GB.UTF-8 en_US.UTF-8 fr_FR.UTF-8 && \
     update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
 ENV LANG=en_US.UTF-8 LC_MESSAGES=POSIX
-
-# keep origin of dependency
-# hdf5
-RUN apt-get install -y \
-        zlib1g-dev
-
-# med
-RUN apt-get install -y \
-        python3-dev
-
 
 # hdf5
 RUN cd /data && rm -rf hdf5 && \
@@ -68,88 +83,32 @@ RUN cd /data && rm -rf metis && \
     make -j 4 && \
     make install
 
-# parmetis
-RUN apt-get install -y \
-        libopenmpi-dev
-
-RUN cd /data && rm -rf parmetis && \
-    hg clone --noupdate https://bitbucket.org/code_aster/parmetis && \
-    cd parmetis && \
-    hg update parmetis_aster && \
-    make config CFLAGS="-fPIC -DINTSIZE64" prefix=/scif/apps/parmetis && \
-    make -j 4 && \
-    make install
-
 # scotch
-RUN apt-get install -y \
-        bison \
-        flex \
-        zlib1g-dev
-
 RUN cd /data && rm -rf scotch && \
     hg clone --noupdate https://bitbucket.org/code_aster/scotch && \
     cd scotch && \
     hg update scotch_aster && \
     cd src && \
     sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
-        -e 's/CCD\s*=.*$/CCD = mpicc/g' Makefile.inc && \
+        -e 's/CCD\s*=.*$/CCD = cc/g' Makefile.inc && \
     make scotch && \
-    make ptscotch && \
     make esmumps && \
     mkdir -p /scif/apps/scotch && \
     make install prefix=/scif/apps/scotch
 
 # mumps
-RUN apt-get install -y \
-        libopenmpi-dev \
-        libblacs-mpi-dev \
-        libscalapack-openmpi-dev \
-        libopenblas-dev \
-        python3-dev \
-        python3-numpy
-
 RUN cd /data && rm -rf mumps && \
     hg clone --noupdate https://bitbucket.org/code_aster/mumps && \
     cd mumps && \
     hg update for_aster && \
     LIBPATH="/scif/apps/scotch/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
         INCLUDES="/scif/apps/scotch/include /scif/apps/metis/include /scif/apps/parmetis/include" \
-        python3 ./waf configure --enable-mpi --enable-openmp --enable-metis --enable-parmetis --enable-scotch \
+        python3 ./waf configure --enable-openmp --enable-metis --enable-scotch \
             --install-tests --prefix=/scif/apps/mumps && \
     python3 ./waf build --jobs=1 && \
     python3 ./waf install --jobs=1
 
-# petsc
-RUN cd /data && rm -rf petsc && \
-    hg clone --noupdate https://bitbucket.org/code_aster/petsc && \
-    cd petsc && \
-    hg update petsc_aster && \
-    cd petsc-src && \
-    ./configure \
-        --with-debugging=0 \
-        --with-mpi=1 \
-        --with-ssl=0 \
-        --with-x=0 \
-        --with-mumps-lib="-L/scif/apps/mumps/lib -lzmumps -ldmumps -lmumps_common -lpord -L/scif/apps/scotch/lib -lesmumps -lptscotch -lptscotcherr -lptscotcherrexit -lscotch -lscotcherr -lscotcherrexit -L/scif/apps/parmetis/lib -lparmetis -L/scif/apps/metis/lib -lmetis" \
-        --with-mumps-include=/scif/apps/mumps/include \
-        --with-blas-lapack-lib="-lopenblas -llapack -lblacsCinit-openmpi -lblacsF77init-openmpi -lblacs-openmpi" \
-        --with-scalapack-lib="-lscalapack-openmpi" \
-        --PETSC_ARCH=arch-linux2-codeaster \
-        --download-ml=/data/petsc/3rd/petsc-pkg-ml-e5040d11aa07.tar.gz \
-        --download-hypre=/data/petsc/3rd/hypre-2.14.0.tar.gz \
-        --download-superlu=/data/petsc/3rd/superlu-a0819410c9eb779f9b296cdd95fbdfd96986ae10.tar.gz \
-        --with-openmp=0 \
-        LIBS=-lgomp \
-        --prefix=/scif/apps/petsc && \
-    make -j 4 PETSC_DIR=/data/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster all && \
-    make -j 4 PETSC_DIR=/data/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster install
-
 # tfel
-RUN apt-get install -y \
-        libboost-numpy-dev \
-        libboost-python-dev \
-        patch
-
 ADD tfel.patch_CMakeLists_python.diff /data/
 
 RUN cd /data && rm -rf tfel && \
@@ -182,11 +141,6 @@ RUN cd /data && rm -rf tfel && \
     make install
 
 # asrun (graphical packages should be removed for servers)
-RUN apt-get install -y \
-        gdb \
-        tk \
-        xterm
-
 ADD asrun.external_configuration.py /data/
 
 RUN cd /data && rm -rf asrun && \
@@ -199,7 +153,7 @@ RUN cd /data && rm -rf asrun && \
     cp /data/asrun.external_configuration.py external_configuration.py && \
     python3 setup.py install --prefix=/scif/apps/asrun && \
     sed -i "s/mpi_get_procid_cmd : echo \$PMI_RANK/mpi_get_procid_cmd : echo \$OMPI_COMM_WORLD_RANK/" /scif/apps/asrun/etc/codeaster/asrun && \
-    printf "\nvers : testing:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
+    printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
 
 # disable automatic devtools environment sourcing
 ENV DEVTOOLS_COMPUTER_ID=None

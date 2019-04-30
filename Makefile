@@ -2,7 +2,6 @@ SHELL=bash
 
 # Set Environment Variables
 IMG	:= code_aster
-TAG := default
 
 .PHONY: help build seq mpi clean
 
@@ -29,7 +28,7 @@ help: ## Print Help
 build: seq mpi ## Build all `code_aster` images
 
 seq: ## Build sequential `code_aster` image
-	@echo building $(@)... TODO
+	$(call build_image,$(IMG),$(@),default)
 
 mpi: ## Build parallel `code_aster` image
 	$(call build_image,$(IMG),$(@),default)
