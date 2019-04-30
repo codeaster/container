@@ -12,7 +12,7 @@ RUN mkdir /data && \
     apt-get update && \
     apt-get upgrade -y --with-new-pkgs -o Dpkg::Options::="--force-confold" && \
     apt-get install -y \
-		# base system \
+        # base system \
         cmake \
         g++ \
         gcc \
@@ -21,33 +21,33 @@ RUN mkdir /data && \
         make \
         mercurial \
         wget \
-		# added for... \
-		# hdf5 \
+        # added for... \
+        # hdf5 \
         zlib1g-dev \
-		# med \
-		python3-dev \
-		# parmetis \
+        # med \
+        python3-dev \
+        # parmetis \
         libopenmpi-dev \
-		# scotch \
-		bison \
-		flex \
+        # scotch \
+        bison \
+        flex \
         zlib1g-dev \
-		# mumps \
+        # mumps \
         libopenmpi-dev \
         libblacs-mpi-dev \
         libscalapack-openmpi-dev \
         libopenblas-dev \
         python3-dev \
         python3-numpy \
-		# tfel
-		libboost-numpy-dev \
-		libboost-python-dev \
-		patch \
-		# asrun
+        # tfel
+        libboost-numpy-dev \
+        libboost-python-dev \
+        patch \
+        # asrun
         gdb \
         tk \
         xterm \
-		&& \
+        && \
     locale-gen en_GB.UTF-8 en_US.UTF-8 fr_FR.UTF-8 && \
     update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
@@ -212,7 +212,7 @@ RUN cd /data/codeaster/src && \
     export LD_LIBRARY_PATH=/scif/apps/tfel/lib && \
     export PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages && \
     ln -s /usr/bin/python3 /usr/local/bin/python && \
-    ./waf configure --use-config=scif --enable-mpi --prefix=/scif/apps/aster --install-tests && \
+    ./waf configure --use-config=scif --enable-mpi --enable-petsc --prefix=/scif/apps/aster --install-tests && \
     ./waf install
 
 # clean source directory
