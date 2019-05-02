@@ -74,40 +74,6 @@ RUN cd /data && rm -rf med && \
     make -j 4 && \
     make install
 
-# metis
-RUN cd /data && rm -rf metis && \
-    hg clone --noupdate https://bitbucket.org/code_aster/metis metis && \
-    cd metis && \
-    hg update code_aster && \
-    make config prefix=/scif/apps/metis && \
-    make -j 4 && \
-    make install
-
-# scotch
-RUN cd /data && rm -rf scotch && \
-    hg clone --noupdate https://bitbucket.org/code_aster/scotch && \
-    cd scotch && \
-    hg update scotch_aster && \
-    cd src && \
-    sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
-        -e 's/CCD\s*=.*$/CCD = cc/g' Makefile.inc && \
-    make scotch && \
-    make esmumps && \
-    mkdir -p /scif/apps/scotch && \
-    make install prefix=/scif/apps/scotch
-
-# mumps
-RUN cd /data && rm -rf mumps && \
-    hg clone --noupdate https://bitbucket.org/code_aster/mumps && \
-    cd mumps && \
-    hg update for_aster && \
-    LIBPATH="/scif/apps/scotch/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
-        INCLUDES="/scif/apps/scotch/include /scif/apps/metis/include /scif/apps/parmetis/include" \
-        python3 ./waf configure --enable-openmp --enable-metis --enable-scotch \
-            --install-tests --prefix=/scif/apps/mumps && \
-    python3 ./waf build --jobs=1 && \
-    python3 ./waf install --jobs=1
-
 # tfel
 ADD tfel.patch_CMakeLists_python.diff /data/
 
@@ -140,6 +106,15 @@ RUN cd /data && rm -rf tfel && \
     make -j 4 && \
     make install
 
+# metis
+RUN cd /data && rm -rf metis && \
+    hg clone --noupdate https://bitbucket.org/code_aster/metis metis && \
+    cd metis && \
+    hg update code_aster && \
+    make config prefix=/scif/apps/metis && \
+    make -j 4 && \
+    make install
+
 # asrun (graphical packages should be removed for servers)
 ADD asrun.external_configuration.py /data/
 
@@ -154,6 +129,31 @@ RUN cd /data && rm -rf asrun && \
     python3 setup.py install --prefix=/scif/apps/asrun && \
     sed -i "s/mpi_get_procid_cmd : echo \$PMI_RANK/mpi_get_procid_cmd : echo \$OMPI_COMM_WORLD_RANK/" /scif/apps/asrun/etc/codeaster/asrun && \
     printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
+
+# scotch
+RUN cd /data && rm -rf scotch && \
+    hg clone --noupdate https://bitbucket.org/code_aster/scotch && \
+    cd scotch && \
+    hg update scotch_aster && \
+    cd src && \
+    sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
+        -e 's/CCD\s*=.*$/CCD = cc/g' Makefile.inc && \
+    make scotch && \
+    make esmumps && \
+    mkdir -p /scif/apps/scotch && \
+    make install prefix=/scif/apps/scotch
+
+# mumps
+RUN cd /data && rm -rf mumps && \
+    hg clone --noupdate https://bitbucket.org/code_aster/mumps && \
+    cd mumps && \
+    hg update for_aster && \
+    LIBPATH="/scif/apps/scotch/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
+        INCLUDES="/scif/apps/scotch/include /scif/apps/metis/include /scif/apps/parmetis/include" \
+        python3 ./waf configure --enable-openmp --enable-metis --enable-scotch \
+            --install-tests --prefix=/scif/apps/mumps && \
+    python3 ./waf build --jobs=1 && \
+    python3 ./waf install --jobs=1
 
 # disable automatic devtools environment sourcing
 ENV DEVTOOLS_COMPUTER_ID=None
