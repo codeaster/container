@@ -1,4 +1,5 @@
 parameters = {
+    "ASTER_VERSION": "unstable",
     "MPIRUN": "mpirun -np %(mpi_nbcpu)s --hostfile %(mpi_hostfile)s %(program)s",
     "DEBUGGER_COMMAND": "/usr/bin/gdb --command=@D @E",
     "DEBUGGER_COMMAND_POST": "/usr/bin/gdb -batch --command=@D @E @C",

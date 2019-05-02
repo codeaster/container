@@ -169,6 +169,7 @@ RUN cd /data && rm -rf codeaster && \
 RUN cd /data/codeaster/src && \
     hg update default && \
     cp /data/aster.wafcfg_scif.py wafcfg/scif.py && \
+    export PATH=/scif/apps/tfel/bin:${PATH} && \
     export LD_LIBRARY_PATH=/scif/apps/tfel/lib && \
     export PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages && \
     ln -s /usr/bin/python3 /usr/local/bin/python && \
