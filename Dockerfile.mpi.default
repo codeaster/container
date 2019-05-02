@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 as builder
+FROM code_aster_common:default as builder
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -12,128 +12,13 @@ RUN mkdir /data && \
     apt-get update && \
     apt-get upgrade -y --with-new-pkgs -o Dpkg::Options::="--force-confold" && \
     apt-get install -y \
-        # base system \
-        cmake \
-        g++ \
-        gcc \
-        gfortran \
-        locales \
-        make \
-        mercurial \
-        wget \
-        # added for... \
-        # hdf5 \
-        zlib1g-dev \
-        # med \
-        python3-dev \
         # parmetis \
         libopenmpi-dev \
-        # scotch \
-        bison \
-        flex \
-        zlib1g-dev \
-        # mumps \
         libopenmpi-dev \
         libblacs-mpi-dev \
         libscalapack-openmpi-dev \
-        libopenblas-dev \
-        python3-dev \
-        python3-numpy \
-        # tfel
-        libboost-numpy-dev \
-        libboost-python-dev \
-        patch \
-        # asrun
-        gdb \
-        tk \
-        xterm \
         && \
-    locale-gen en_GB.UTF-8 en_US.UTF-8 fr_FR.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
-
-ENV LANG=en_US.UTF-8 LC_MESSAGES=POSIX
-
-# hdf5
-RUN cd /data && rm -rf hdf5 && \
-    mkdir hdf5 && \
-    wget --no-check-certificate --quiet \
-        https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.3/src/hdf5-1.10.3.tar.gz \
-        -O hdf.tar.gz && \
-    tar xf hdf.tar.gz -C hdf5 --strip-components 1 && \
-    cd hdf5 && \
-    ./configure --prefix=/scif/apps/hdf5 && \
-    make -j 4 && \
-    make install
-
-# med
-RUN cd /data && rm -rf med && \
-    mkdir med && \
-    wget --no-check-certificate --quiet \
-        http://files.salome-platform.org/Salome/other/med-4.0.0.tar.gz \
-        -O med.tar.gz && \
-    tar xf med.tar.gz -C med --strip-components 1 && \
-    cd med && \
-    alias python=python3 && \
-    F77=gfortran CXXFLAGS='-std=gnu++98' PYTHON=/usr/bin/python3 \
-        ./configure --disable-mesgerr --with-hdf5=/scif/apps/hdf5 --prefix=/scif/apps/med && \
-    make -j 4 && \
-    make install
-
-# tfel
-ADD tfel.patch_CMakeLists_python.diff /data/
-
-RUN cd /data && rm -rf tfel && \
-    mkdir tfel && \
-    wget --no-check-certificate --quiet \
-        https://github.com/thelfer/tfel/archive/TFEL-3.1.1.tar.gz \
-        -O tfel.tar.gz && \
-    tar xf tfel.tar.gz -C tfel --strip-components 1 && \
-    cd tfel && \
-    patch -p1 < /data/tfel.patch_CMakeLists_python.diff && \
-    mkdir build && \
-    cd build && \
-    cmake .. \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DTFEL_SVN_REVISION=3.1.1 -DTFEL_APPEND_VERSION=3.1.1 \
-        -DCMAKE_Fortran_COMPILER=/usr/bin/gfortran \
-        -Dlocal-castem-header=ON -Denable-fortran=OFF \
-        -DPython_ADDITIONAL_VERSIONS=3.6 -Denable-python=ON \
-        -Denable-broken-boost-python-module-visibility-handling=ON \
-        -Denable-python-bindings=ON \
-        -Denable-cyrano=ON -Denable-aster=ON \
-        -Ddisable-reference-doc=ON -Ddisable-website=ON \
-        -Denable-portable-build=ON \
-        -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3 \
-        -DPYTHON_LIBRARY:FILEPATH=/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/libpython3.6.so \
-        -DPYTHON_INCLUDE_DIR:PATH=/usr/include/python3.6 \
-        -DPython_ADDITIONAL_VERSIONS=3.6 \
-        -DCMAKE_INSTALL_PREFIX=/scif/apps/tfel && \
-    make -j 4 && \
-    make install
-
-# metis
-RUN cd /data && rm -rf metis && \
-    hg clone --noupdate https://bitbucket.org/code_aster/metis metis && \
-    cd metis && \
-    hg update code_aster && \
-    make config prefix=/scif/apps/metis && \
-    make -j 4 && \
-    make install
-
-# asrun (graphical packages should be removed for servers)
-ADD asrun.external_configuration.py /data/
-
-RUN cd /data && rm -rf asrun && \
-    mkdir asrun && \
-    wget --no-check-certificate --quiet \
-        https://bitbucket.org/code_aster/codeaster-frontend/get/default.tar.gz \
-        -O asrun.tar.gz && \
-    tar xf asrun.tar.gz -C asrun --strip-components 1 && \
-    cd asrun && \
-    cp /data/asrun.external_configuration.py external_configuration.py && \
-    python3 setup.py install --prefix=/scif/apps/asrun && \
-    sed -i "s/mpi_get_procid_cmd : echo \$PMI_RANK/mpi_get_procid_cmd : echo \$OMPI_COMM_WORLD_RANK/" /scif/apps/asrun/etc/codeaster/asrun && \
-    printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
+    true
 
 # parmetis
 RUN cd /data && rm -rf parmetis && \

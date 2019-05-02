@@ -3,7 +3,7 @@ SHELL=bash
 # Set Environment Variables
 IMG	:= code_aster
 
-.PHONY: help build seq mpi clean
+.PHONY: help build common seq mpi clean
 
 define source_env
 	for file in env.d/*; do \
@@ -27,13 +27,19 @@ help: ## Print Help
 
 build: seq mpi ## Build all `code_aster` images
 
-seq: ## Build sequential `code_aster` image
+common: ## Build base image for `code_aster` sequential & parallel
 	$(call build_image,$(IMG),$(@),default)
 
-mpi: ## Build parallel `code_aster` image
+seq: common ## Build sequential `code_aster` image
+	$(call build_image,$(IMG),$(@),default)
+
+mpi: common ## Build parallel `code_aster` image
 	$(call build_image,$(IMG),$(@),default)
 
 clean: ## Remove unused docker data
 	docker system prune -f
+
+distclean: clean ## Remove unused docker data
+	docker image rm $(IMG)_common:default
 
 .DEFAULT_GOAL := help
