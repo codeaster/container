@@ -74,6 +74,15 @@ RUN cd /data && rm -rf med && \
     make -j 4 && \
     make install
 
+# metis
+RUN cd /data && rm -rf metis && \
+    hg clone --noupdate https://bitbucket.org/code_aster/metis metis && \
+    cd metis && \
+    hg update code_aster && \
+    make config prefix=/scif/apps/metis && \
+    make -j 4 && \
+    make install
+
 # tfel
 ADD tfel.patch_CMakeLists_python.diff /data/
 
@@ -106,14 +115,15 @@ RUN cd /data && rm -rf tfel && \
     make -j 4 && \
     make install
 
-# metis
-RUN cd /data && rm -rf metis && \
-    hg clone --noupdate https://bitbucket.org/code_aster/metis metis && \
-    cd metis && \
-    hg update code_aster && \
-    make config prefix=/scif/apps/metis && \
-    make -j 4 && \
-    make install
+# homard
+RUN cd /data && rm -rf homard && \
+    mkdir homard && \
+    wget --no-check-certificate --quiet \
+        https://bitbucket.org/code_aster/homard/get/homard_aster.tar.gz \
+        -O homard.tar.gz && \
+    tar xf homard.tar.gz -C homard --strip-components 1 && \
+    cd homard && \
+    python3 setup_homard.py --prefix=/scif/apps/homard
 
 # asrun (graphical packages should be removed for servers)
 ADD asrun.external_configuration.py /data/

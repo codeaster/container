@@ -39,7 +39,7 @@ mpi: common ## Build parallel `code_aster` image
 clean: ## Remove unused docker data
 	docker system prune -f
 
-distclean: clean ## Remove unused docker data
+distclean: clean ## Remove unused docker data and intermediate images
 	docker image rm $(IMG)_common:default
 
 .DEFAULT_GOAL := help
