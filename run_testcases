@@ -1,0 +1,85 @@
+#!/bin/bash
+
+_usage()
+{
+    echo "Run the testcases using a given version."
+    echo
+    echo "Usage: run_testcases [options] version"
+    echo
+    echo "Options:"
+    echo
+    echo "  --help (-h)     Print this help information and exit."
+    echo "  --np=N (-n N)   Number of processes to run (default: $(nproc))."
+    echo "  --test (-t)     Execute only few tests."
+    echo
+    exit "${1:-1}"
+}
+
+WORK=/home/aster
+
+run_main()
+{
+    local version
+    local short=0
+    local cpu=$(nproc)
+
+    local option
+    OPTS=$(getopt -o htn: --long help,test,np: -n $(basename $0) -- "$@")
+    if [ $? != 0 ] ; then
+        echo "invalid arguments." ; _usage 2
+    fi
+    eval set -- "$OPTS"
+    while true; do
+        case "$1" in
+            -h | --help ) _usage ;;
+            -t | --test ) short=1 ;;
+            -n | --np ) cpu="$2" ; shift ;;
+            -- ) shift ; break ;;
+            * ) break ;;
+        esac
+        shift
+    done
+    if [ $# -ne 1 ] ; then
+        echo "'version' argument missing." ; _usage 2
+    fi
+    version="$1"
+
+    [ ! -d ${WORK} ] && mkdir -p ${WORK}
+    cd ${WORK}
+
+    # build testlist
+    echo "building testlist..."
+    as_run --nodebug_stderr --list --all --filter='"parallel" not in testlist' -o testlist
+    local limit=99999
+    test "$short" -eq "1" && limit=4
+    shuf testlist | head -"${limit}" > list_run
+
+    cat << EOF > hostfile
+[localhost]
+cpu=${cpu}
+mem=9999999
+EOF
+
+    cat << EOF > astout.export
+# parameters
+P actions astout
+P version ${version}
+P debug nodebug
+P mode interactif
+P ncpus 1
+P nbmaxnook 500
+P cpresok RESOK
+P facmtps 3
+P tpsjob 300
+
+F hostfile ${WORK}/hostfile D 0
+F list ${WORK}/list_run D 0
+R resu_test ${WORK}/resutest R 0
+EOF
+
+    # execute the testcases
+    as_run --nodebug_stderr astout.export
+}
+
+run_main "${@}"
+exit $?

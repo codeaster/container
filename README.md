@@ -79,6 +79,19 @@ by name (`P version unstable`).
 Now, run a code_aster container using local files:
 
 ``` bash
-docker run --rm --volume $(pwd)/workdir:/study code_aster_seq:default \
-    as_run --nodebug_stderr /study/export
+docker run --rm --volume $(pwd)/workdir:/aster code_aster_seq:default \
+    as_run --nodebug_stderr /aster/export
+```
+
+### Validation
+
+*Some prerequisites are not yet available within the container
+(miss3d, ecrevisse, etc.). So, all the tests that are using these tools
+are currently in failure.*
+
+The `--test` argument allows to execute only 4 testcases.
+Remove it to check all the testcases (about 3800).
+
+``` bash
+docker run --rm -it code_aster_seq:default run_testcases --test unstable
 ```
