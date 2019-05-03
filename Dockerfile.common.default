@@ -42,6 +42,9 @@ RUN mkdir /data && \
         gdb \
         tk \
         xterm \
+        # external tools called by aster \
+        gmsh \
+        grace \
         && \
     locale-gen en_GB.UTF-8 en_US.UTF-8 fr_FR.UTF-8 && \
     update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
@@ -113,7 +116,8 @@ RUN cd /data && rm -rf tfel && \
         -DPython_ADDITIONAL_VERSIONS=3.6 \
         -DCMAKE_INSTALL_PREFIX=/scif/apps/tfel && \
     make -j 4 && \
-    make install
+    make install && \
+    ln -s /scif/apps/tfel/bin/mfront-3.1.1 /usr/local/bin/
 
 # homard
 RUN cd /data && rm -rf homard && \
@@ -138,4 +142,5 @@ RUN cd /data && rm -rf asrun && \
     cp /data/asrun.external_configuration.py external_configuration.py && \
     python3 setup.py install --prefix=/scif/apps/asrun && \
     sed -i "s/mpi_get_procid_cmd : echo \$PMI_RANK/mpi_get_procid_cmd : echo \$OMPI_COMM_WORLD_RANK/" /scif/apps/asrun/etc/codeaster/asrun && \
-    printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
+    printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster && \
+    ln -s /scif/apps/asrun/bin/as_run /usr/local/bin/
