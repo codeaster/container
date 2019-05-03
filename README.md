@@ -35,6 +35,10 @@ Then choose your target between `seq` and `mpi`, or `build` to build all:
 make build
 ```
 
+Environment files added in the `env.d` directory are sourced before calling
+`docker`/`singularity` builder. It may be useful for example to configure the
+environment to pass a proxy.
+
 
 ## Testing
 
@@ -93,5 +97,8 @@ The `--test` argument allows to execute only 4 testcases.
 Remove it to check all the testcases (about 3800).
 
 ``` bash
-docker run --rm -it code_aster_seq:default run_testcases --test unstable
+docker run -t code_aster_seq:default run_testcases --test unstable
+
+# to copy the result files
+docker cp -a <CONTAINER>:/home/aster/resutest <DESTINATION>
 ```
