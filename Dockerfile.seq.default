@@ -54,5 +54,5 @@ RUN apt-get clean && \
 
 # create aster user
 RUN useradd -ms /bin/bash aster
-
 USER aster
+WORKDIR /home/aster
