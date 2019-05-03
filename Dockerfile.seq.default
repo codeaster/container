@@ -51,3 +51,8 @@ RUN cd /data/codeaster/src && \
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/tmp/* && \
     rm -rf /data
+
+# create aster user
+RUN useradd -ms /bin/bash aster
+
+USER aster
