@@ -1,4 +1,4 @@
-FROM code_aster_common:default as builder
+FROM codeaster-common:latest as builder
 
 ENV DEBIAN_FRONTEND noninteractive
 

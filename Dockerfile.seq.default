@@ -1,4 +1,4 @@
-FROM code_aster_common:default as builder
+FROM codeaster-common:latest as builder
 
 # scotch
 RUN cd /data && rm -rf scotch && \

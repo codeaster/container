@@ -1,7 +1,7 @@
 SHELL=bash
 
-# Set Environment Variables
-IMG	:= code_aster
+# Use same name as on Docker Hub
+REPO	:= codeaster
 
 .PHONY: help build common seq mpi clean
 
@@ -19,7 +19,7 @@ define build_image
 		--build-arg https_proxy=$${https_proxy} \
 		--build-arg http_proxy=$${http_proxy} \
 		--build-arg no_proxy=$${no_proxy} \
-		-f ./Dockerfile.$(2).$(3) -t $(1)_$(2):$(3) .
+		-f ./Dockerfile.$(2).$(3) -t $(1)-$(2) .
 endef
 
 help: ## Print Help
@@ -28,18 +28,18 @@ help: ## Print Help
 build: seq mpi ## Build all `code_aster` images
 
 common: ## Build base image for `code_aster` sequential & parallel
-	$(call build_image,$(IMG),$(@),default)
+	$(call build_image,$(REPO),$(@),default)
 
 seq: common ## Build sequential `code_aster` image
-	$(call build_image,$(IMG),$(@),default)
+	$(call build_image,$(REPO),$(@),default)
 
 mpi: common ## Build parallel `code_aster` image
-	$(call build_image,$(IMG),$(@),default)
+	$(call build_image,$(REPO),$(@),default)
 
 clean: ## Remove unused docker data
 	docker system prune -f
 
 distclean: clean ## Remove unused docker data and intermediate images
-	docker image rm $(IMG)_common:default
+	docker image rm $(REPO)-common:latest
 
 .DEFAULT_GOAL := help
