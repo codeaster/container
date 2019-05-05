@@ -12,13 +12,37 @@ This repository provides some recipes to build containers for
 
 
 The repository contains first recipes to build a sequential and a parallel
-version for the development branch (`default`).
-The version is named `unstable`.
+version for the development branch (`default`) which refers to the `latest`
+tag on docker images.
+The code_aster version is named `unstable`.
 
 * for [docker](https://docs.docker.com/).
 
 * for [singularity](https://www.sylabs.io/docs/) (*soon*).
 
+
+## List of code_aster images
+
+Executable images:
+
+- `codeastersolver/codeaster-seq`: Sequential version of code_aster.
+
+- `codeastersolver/codeaster-mpi`: Parallel version of code_aster.
+
+Intermediate layers with prerequisites:
+
+- `codeastersolver/codeaster-deps-seq`: Prerequisites for the sequential version.
+
+- `codeastersolver/codeaster-deps-mpi`: Prerequisites for the parallel version.
+
+- `codeastersolver/codeaster-common`: Prerequisites common to all versions.
+
+
+## Tags
+
+- `latest`: It refers to the last head of the `default` branch.
+
+*No more for the moment...*
 
 
 ## Build images

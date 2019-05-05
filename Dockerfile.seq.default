@@ -1,29 +1,4 @@
-FROM codeaster-common:latest as builder
-
-# scotch
-RUN cd /data && rm -rf scotch && \
-    hg clone --noupdate https://bitbucket.org/code_aster/scotch && \
-    cd scotch && \
-    hg update scotch_aster && \
-    cd src && \
-    sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
-        -e 's/CCD\s*=.*$/CCD = cc/g' Makefile.inc && \
-    make scotch && \
-    make esmumps && \
-    mkdir -p /scif/apps/scotch && \
-    make install prefix=/scif/apps/scotch
-
-# mumps
-RUN cd /data && rm -rf mumps && \
-    hg clone --noupdate https://bitbucket.org/code_aster/mumps && \
-    cd mumps && \
-    hg update for_aster && \
-    LIBPATH="/scif/apps/scotch/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
-        INCLUDES="/scif/apps/scotch/include /scif/apps/metis/include /scif/apps/parmetis/include" \
-        python3 ./waf configure --enable-openmp --enable-metis --enable-scotch \
-            --install-tests --prefix=/scif/apps/mumps && \
-    python3 ./waf build --jobs=1 && \
-    python3 ./waf install --jobs=1
+FROM codeastersolver/codeaster-deps-seq:latest as builder
 
 # disable automatic devtools environment sourcing
 ENV DEVTOOLS_COMPUTER_ID=None
@@ -39,7 +14,7 @@ RUN cd /data && rm -rf codeaster && \
 RUN cd /data/codeaster/src && \
     hg update default && \
     cp /data/aster.wafcfg_scif.py wafcfg/scif.py && \
-    export PATH=/scif/apps/homard:${PATH} && \
+    export PATH=/scif/apps/tfel/bin:/scif/apps/homard:${PATH} && \
     export LD_LIBRARY_PATH=/scif/apps/tfel/lib && \
     export PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages && \
     ln -s /usr/bin/python3 /usr/local/bin/python && \
@@ -54,9 +29,5 @@ RUN apt-get clean && \
 
 ADD run_testcases /usr/local/bin/
 
-# create aster user
-RUN useradd -ms /bin/bash aster && \
-    mkdir /aster && \
-    chown aster:aster /aster
 USER aster
 WORKDIR /home/aster

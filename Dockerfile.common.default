@@ -51,6 +51,15 @@ RUN mkdir /data && \
 
 ENV LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
+# create aster user
+RUN useradd -ms /bin/bash aster && \
+    mkdir /aster && \
+    chown aster:aster /aster
+USER aster
+
+# continue as root
+USER root
+
 # hdf5
 RUN cd /data && rm -rf hdf5 && \
     mkdir hdf5 && \

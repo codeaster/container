@@ -1,0 +1,80 @@
+FROM codeastersolver/codeaster-common:latest as builder
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Use same filesystem organisation as for Singularity Apps
+# https://www.sylabs.io/guides/3.2/user-guide/definition_files.html#apps
+
+# Base system + prerequisites
+# Show all the dependencies of each prerequisite even if some packages are
+# repeated
+RUN apt-get update && \
+    apt-get upgrade -y --with-new-pkgs -o Dpkg::Options::="--force-confold" && \
+    apt-get install -y \
+        # parmetis \
+        libopenmpi-dev \
+        libopenmpi-dev \
+        libblacs-mpi-dev \
+        libscalapack-openmpi-dev \
+        && \
+    true
+
+# parmetis
+RUN cd /data && rm -rf parmetis && \
+    hg clone --noupdate https://bitbucket.org/code_aster/parmetis && \
+    cd parmetis && \
+    hg update parmetis_aster && \
+    make config CFLAGS="-fPIC -DINTSIZE64" prefix=/scif/apps/parmetis && \
+    make -j 4 && \
+    make install
+
+# scotch
+RUN cd /data && rm -rf scotch && \
+    hg clone --noupdate https://bitbucket.org/code_aster/scotch && \
+    cd scotch && \
+    hg update scotch_aster && \
+    cd src && \
+    sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
+        -e 's/CCD\s*=.*$/CCD = mpicc/g' Makefile.inc && \
+    make scotch && \
+    make ptscotch && \
+    make esmumps && \
+    mkdir -p /scif/apps/scotch && \
+    make install prefix=/scif/apps/scotch
+
+# mumps
+RUN cd /data && rm -rf mumps && \
+    hg clone --noupdate https://bitbucket.org/code_aster/mumps && \
+    cd mumps && \
+    hg update for_aster && \
+    LIBPATH="/scif/apps/scotch/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
+        INCLUDES="/scif/apps/scotch/include /scif/apps/metis/include /scif/apps/parmetis/include" \
+        python3 ./waf configure --enable-mpi --enable-openmp --enable-metis --enable-parmetis --enable-scotch \
+            --install-tests --prefix=/scif/apps/mumps && \
+    python3 ./waf build --jobs=1 && \
+    python3 ./waf install --jobs=1
+
+# petsc
+RUN cd /data && rm -rf petsc && \
+    hg clone --noupdate https://bitbucket.org/code_aster/petsc && \
+    cd petsc && \
+    hg update petsc_aster && \
+    cd petsc-src && \
+    ./configure \
+        --with-debugging=0 \
+        --with-mpi=1 \
+        --with-ssl=0 \
+        --with-x=0 \
+        --with-mumps-lib="-L/scif/apps/mumps/lib -lzmumps -ldmumps -lmumps_common -lpord -L/scif/apps/scotch/lib -lesmumps -lptscotch -lptscotcherr -lptscotcherrexit -lscotch -lscotcherr -lscotcherrexit -L/scif/apps/parmetis/lib -lparmetis -L/scif/apps/metis/lib -lmetis" \
+        --with-mumps-include=/scif/apps/mumps/include \
+        --with-blas-lapack-lib="-lopenblas -llapack -lblacsCinit-openmpi -lblacsF77init-openmpi -lblacs-openmpi" \
+        --with-scalapack-lib="-lscalapack-openmpi" \
+        --PETSC_ARCH=arch-linux2-codeaster \
+        --download-ml=/data/petsc/3rd/petsc-pkg-ml-e5040d11aa07.tar.gz \
+        --download-hypre=/data/petsc/3rd/hypre-2.14.0.tar.gz \
+        --download-superlu=/data/petsc/3rd/superlu-a0819410c9eb779f9b296cdd95fbdfd96986ae10.tar.gz \
+        --with-openmp=0 \
+        LIBS=-lgomp \
+        --prefix=/scif/apps/petsc && \
+    make -j 4 PETSC_DIR=/data/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster all && \
+    make -j 4 PETSC_DIR=/data/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster install
