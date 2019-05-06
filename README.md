@@ -9,7 +9,9 @@ This repository provides some recipes to build containers for
   code_aster from an existing
   [salome_meca](https://www.code-aster.org/spip.php?article302)
   installation.
-
+>
+> The images size could be reduced by removing testcases and use multi-stage
+> builds.
 
 The repository contains first recipes to build a sequential and a parallel
 version for the development branch (`default`) which refers to the `latest`
@@ -69,13 +71,13 @@ environment to pass a proxy.
 ### Running a shell using the image:
 
 ``` bash
-docker run --rm -it codeaster-seq:latest
+docker run --rm -it codeastersolver/codeaster-seq:latest
 ```
 
 ### Running a testcase using testcase files embedded in the image:
 
 ``` bash
-docker run --rm codeaster-seq:latest as_run --nodebug_stderr --test zzzz100f
+docker run --rm codeastersolver/codeaster-seq:latest as_run --nodebug_stderr --test zzzz100f
 ```
 
 ### Running a testcase using files out of the image:
@@ -85,7 +87,7 @@ In the real life, these files are for example created from salome_meca.
 
 ``` bash
 # create a temporary container to access the testcase files
-docker run --name astercp codeaster-seq:latest
+docker run --name astercp codeastersolver/codeaster-seq:latest
 
 # copy files
 mkdir workdir
@@ -96,7 +98,7 @@ docker cp astercp:/scif/apps/aster/share/aster/tests/sslv155a.mmed workdir/
 docker rm astercp
 
 # create the export file
-docker run --rm  codeaster-seq:latest as_run --get_export sslv155a --nodebug_stderr | \
+docker run --rm  codeastersolver/codeaster-seq:latest as_run --get_export sslv155a --nodebug_stderr | \
     sed -e 's#/scif/apps/aster/share/aster/tests#.#g' \
     > workdir/export
 ```
@@ -107,7 +109,7 @@ by name (`P version unstable`).
 Now, run a code_aster container using local files:
 
 ``` bash
-docker run --rm --volume $(pwd)/workdir:/aster codeaster-seq:latest \
+docker run --rm --volume $(pwd)/workdir:/aster codeastersolver/codeaster-seq:latest \
     as_run --nodebug_stderr /aster/export
 ```
 
@@ -121,7 +123,7 @@ The `--test` argument allows to randomly execute only 4 testcases.
 Remove it to check all the testcases (about 3800 and 15-20h cpu).
 
 ``` bash
-docker run -t codeaster-seq:latest run_testcases --test unstable
+docker run -t codeastersolver/codeaster-seq:latest run_testcases --test unstable
 
 # to copy the result files
 docker cp -a <CONTAINER>:/home/aster/resutest <DESTINATION>
