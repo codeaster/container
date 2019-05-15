@@ -5,7 +5,7 @@ def configure(self):
     self.env['ADDMEM'] = 600
 
     self.env['TFELHOME'] = '/scif/apps/tfel'
-    self.env['TFELVERS'] = '3.1.1'
+    self.env['TFELVERS'] = '3.2.1'
     self.env['CATALO_CMD'] = "DUMMY="
 
     self.env.append_value('LIBPATH', [

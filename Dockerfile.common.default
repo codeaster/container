@@ -96,21 +96,19 @@ RUN cd /data && rm -rf metis && \
     make install
 
 # tfel
-ADD tfel.patch_CMakeLists_python.diff /data/
-
 RUN cd /data && rm -rf tfel && \
     mkdir tfel && \
+    VERSION=3.2.1 && \
     wget --no-check-certificate --quiet \
-        https://github.com/thelfer/tfel/archive/TFEL-3.1.1.tar.gz \
+        https://github.com/thelfer/tfel/archive/TFEL-${VERSION}.tar.gz \
         -O tfel.tar.gz && \
     tar xf tfel.tar.gz -C tfel --strip-components 1 && \
     cd tfel && \
-    patch -p1 < /data/tfel.patch_CMakeLists_python.diff && \
     mkdir build && \
     cd build && \
     cmake .. \
         -DCMAKE_BUILD_TYPE=Release \
-        -DTFEL_SVN_REVISION=3.1.1 -DTFEL_APPEND_VERSION=3.1.1 \
+        -DTFEL_SVN_REVISION=${VERSION} -DTFEL_APPEND_VERSION=${VERSION} \
         -DCMAKE_Fortran_COMPILER=/usr/bin/gfortran \
         -Dlocal-castem-header=ON -Denable-fortran=OFF \
         -DPython_ADDITIONAL_VERSIONS=3.6 -Denable-python=ON \
@@ -126,7 +124,7 @@ RUN cd /data && rm -rf tfel && \
         -DCMAKE_INSTALL_PREFIX=/scif/apps/tfel && \
     make -j 4 && \
     make install && \
-    ln -s /scif/apps/tfel/bin/mfront-3.1.1 /usr/local/bin/
+    ln -s /scif/apps/tfel/bin/mfront-${VERSION} /usr/local/bin/
 
 # homard
 RUN cd /data && rm -rf homard && \
