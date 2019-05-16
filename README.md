@@ -115,16 +115,37 @@ docker run --rm --volume $(pwd)/workdir:/aster codeastersolver/codeaster-seq:lat
 
 ### Validation
 
+To limit the size of the binary images only few testcases are available in the
+installation directory.
+The 3800+ testcases can be extracted from the source tree from the
+[Bitbucket repository](https://bitbucket.org/code_aster/codeaster-src)
+(see below).
+Checking all the 3800 testcases takes about 15-20h cpu.
+
 *Some prerequisites are not yet available within the container
 (miss3d, ecrevisse, etc.). So, all the tests that are using these tools
 are currently in failure.*
 
-The `--test` argument allows to randomly execute only 4 testcases.
-Remove it to check all the testcases (about 3800 and 15-20h cpu).
+To execute the existing testcases, use:
 
 ``` bash
-docker run -t codeastersolver/codeaster-seq:latest run_testcases --test unstable
+docker run -t codeastersolver/codeaster-seq:latest run_testcases unstable
 
 # to copy the result files
 docker cp -a <CONTAINER>:/home/aster/resutest <DESTINATION>
+```
+
+Use the following commands to download all the 3800+ testcases from the
+[Bitbucket repository](https://bitbucket.org/code_aster/codeaster-src) and
+execute them.
+
+``` bash
+# download the testcases out of the container
+wget https://bitbucket.org/code_aster/codeaster-src/get/default.tar.gz
+tar xzf default.tar.gz
+mv code_aster-codeaster-src-*/astest . && rm -rf code_aster-codeaster-src-*
+
+# mount 'astest' and run testcases in the container
+docker run -t --volume $(pwd)/astest:/home/aster/tests codeastersolver/codeaster-seq:latest \
+    run_testcases --tests=/home/aster/tests unstable
 ```

@@ -8,9 +8,10 @@ _usage()
     echo
     echo "Options:"
     echo
-    echo "  --help (-h)     Print this help information and exit."
-    echo "  --np=N (-n N)   Number of processes to run (default: $(nproc))."
-    echo "  --test (-t)     Execute only few tests."
+    echo "  --help (-h)             Print this help information and exit."
+    echo "  --np=N (-n N)           Number of processes to run (default: $(nproc))."
+    echo "  --limit=NB (-l NB)      Execute only NB tests."
+    echo "  --tests=DIR (-t DIR)    Use testcases from this directory."
     echo
     exit "${1:-1}"
 }
@@ -22,9 +23,11 @@ run_main()
     local version
     local short=0
     local cpu=$(nproc)
+    local limit=99999
+    local tests
 
     local option
-    OPTS=$(getopt -o htn: --long help,test,np: -n $(basename $0) -- "$@")
+    OPTS=$(getopt -o htn:l: --long help,test,np:,limit:,tests: -n $(basename $0) -- "$@")
     if [ $? != 0 ] ; then
         echo "invalid arguments." ; _usage 2
     fi
@@ -32,8 +35,9 @@ run_main()
     while true; do
         case "$1" in
             -h | --help ) _usage ;;
-            -t | --test ) short=1 ;;
             -n | --np ) cpu="$2" ; shift ;;
+            -l | --limit ) limit="$2" ; shift ;;
+            -t | --tests ) tests="$2" ; shift ;;
             -- ) shift ; break ;;
             * ) break ;;
         esac
@@ -49,9 +53,9 @@ run_main()
 
     # build testlist
     echo "building testlist..."
-    as_run --nodebug_stderr --list --all --filter='"parallel" not in testlist' -o testlist
-    local limit=99999
-    test "$short" -eq "1" && limit=4
+    local options="--nodebug_stderr --list --all"
+    test ! -z "${tests}" && options="${options} --astest_dir=${tests}"
+    as_run ${options} --filter='"parallel" not in testlist' -o testlist
     shuf testlist | head -"${limit}" > list_run
 
     cat << EOF > hostfile
@@ -76,6 +80,7 @@ F hostfile ${WORK}/hostfile D 0
 F list ${WORK}/list_run D 0
 R resu_test ${WORK}/resutest R 0
 EOF
+    test ! -z "${tests}" && echo "R rep_test ${tests} D 0" >> astout.export
 
     # execute the testcases
     as_run --nodebug_stderr astout.export

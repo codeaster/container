@@ -22,10 +22,83 @@ RUN cd /data/codeaster/src && \
         ./waf configure --use-config=scif --prefix=/scif/apps/aster --install-tests && \
     ./waf install
 
+# move testcases to minimize binary image size
+# keep them in /home/aster/tests to run them with the src image
+RUN mv /scif/apps/aster/share/aster/tests /home/aster/tests && \
+    mkdir /scif/apps/aster/share/aster/tests && \
+    for name in forma01a hsnv100a pynl01a sdll100a sslv155a ssnv128a zzzz100f; do \
+        cp /home/aster/tests/${name}* /scif/apps/aster/share/aster/tests/; \
+    done && \
+    chown -R aster:aster /home/aster/tests
+
+# binary installation
+# TODO: "-dev" could probably be removed
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Base system + prerequisites
+# Show all the dependencies of each prerequisite even if some packages are
+# repeated
+RUN mkdir /data && \
+    apt-get update && \
+    apt-get upgrade -y --with-new-pkgs -o Dpkg::Options::="--force-confold" && \
+    apt-get install -y \
+        # base system \
+        cmake \
+        g++ \
+        gcc \
+        gfortran \
+        locales \
+        make \
+        mercurial \
+        wget \
+        # added for... \
+        # hdf5 \
+        zlib1g-dev \
+        # med \
+        python3-dev \
+        # scotch \
+        bison \
+        flex \
+        zlib1g-dev \
+        # mumps \
+        libopenblas-dev \
+        python3-dev \
+        python3-numpy \
+        # tfel
+        libboost-numpy-dev \
+        libboost-python-dev \
+        patch \
+        # asrun
+        gdb \
+        tk \
+        xterm \
+        # external tools called by aster \
+        gmsh \
+        grace \
+        && \
+    locale-gen en_GB.UTF-8 en_US.UTF-8 fr_FR.UTF-8 && \
+    update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
+
+ENV LANG=en_US.UTF-8 LC_MESSAGES=POSIX
+
+# create aster user
+RUN useradd -ms /bin/bash aster && \
+    mkdir /aster && \
+    chown aster:aster /aster
+
 # clean source directory
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/tmp/* && \
     rm -rf /data
+
+COPY --from=builder /scif /scif
+
+# replay
+RUN ln -s /usr/bin/python3 /usr/local/bin/python && \
+    ln -s /scif/apps/tfel/bin/mfront-${VERSION} /usr/local/bin/ && \
+    ln -s /scif/apps/asrun/bin/as_run /usr/local/bin/
 
 ADD run_testcases /usr/local/bin/
 
