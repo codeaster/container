@@ -1,7 +1,12 @@
 # Containers for code_aster
 
 This repository provides some recipes to build containers for
-[code_aster](https://www.code-aster.org/).
+[code_aster](https://www.code-aster.org/):
+
+* for [docker](https://docs.docker.com/).
+
+* for [singularity](https://www.sylabs.io/docs/).
+
 
 > **It should be considered as a work in progress.**
 >
@@ -9,18 +14,12 @@ This repository provides some recipes to build containers for
   code_aster from an existing
   [salome_meca](https://www.code-aster.org/spip.php?article302)
   installation.
->
-> The images size could be reduced by removing testcases and use multi-stage
-> builds.
 
-The repository contains first recipes to build a sequential and a parallel
+
+The repository contains recipes to build a sequential and a parallel
 version for the development branch (`default`) which refers to the `latest`
 tag on docker images.
 The code_aster version is named `unstable`.
-
-* for [docker](https://docs.docker.com/).
-
-* for [singularity](https://www.sylabs.io/docs/) (*soon*).
 
 
 ## List of code_aster images
@@ -31,13 +30,15 @@ Executable images:
 
 - `codeastersolver/codeaster-mpi`: Parallel version of code_aster.
 
-Intermediate layers with prerequisites:
+Intermediate layer with prerequisites:
 
-- `codeastersolver/codeaster-deps-seq`: Prerequisites for the sequential version.
+- `codeastersolver/codeaster-common`: Prerequisites for the sequential and
+  parallel versions.
 
-- `codeastersolver/codeaster-deps-mpi`: Prerequisites for the parallel version.
+This image can also be used to build your own development version.
 
-- `codeastersolver/codeaster-common`: Prerequisites common to all versions.
+Singularity recipes are simple *conversions* that use the Docker images as
+bootstrap.
 
 
 ## Tags

@@ -5,7 +5,7 @@ IMG	:= codeaster
 
 SINGULARITY := $(shell which singularity)
 
-.PHONY: help build common deps-seq deps-mpi seq mpi simg-seq simg-mpi simg clean
+.PHONY: help build common seq mpi simg-seq simg-mpi simg clean
 
 define source_env
 	for file in env.d/*; do \
@@ -41,16 +41,10 @@ simg: simg-seq simg-mpi ## Build all `code_aster` singularity images
 common: ## Build base image for prerequisites
 	$(call build_image,$(IMG),$(@),default)
 
-deps-seq: common ## Build base image for prerequisites for `code_aster` sequential
+seq: common ## Build sequential `code_aster` image
 	$(call build_image,$(IMG),$(@),default)
 
-deps-mpi: common ## Build base image for prerequisites for `code_aster` parallel
-	$(call build_image,$(IMG),$(@),default)
-
-seq: deps-seq ## Build sequential `code_aster` image
-	$(call build_image,$(IMG),$(@),default)
-
-mpi: deps-mpi ## Build parallel `code_aster` image
+mpi: common ## Build parallel `code_aster` image
 	$(call build_image,$(IMG),$(@),default)
 
 clean: ## Remove unused docker data

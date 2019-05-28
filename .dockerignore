@@ -1,6 +1,7 @@
 # ignore
 Makefile
 README.md
-Dockerfile.*
+Dockerfile*
+Singularity*
 env.d/*
 images/

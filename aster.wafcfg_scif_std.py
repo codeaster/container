@@ -12,10 +12,8 @@ def configure(self):
         '/scif/apps/hdf5/lib',
         '/scif/apps/med/lib',
         '/scif/apps/metis/lib',
-        '/scif/apps/mumps/lib',
-        '/scif/apps/parmetis/lib',
-        '/scif/apps/petsc/lib',
-        '/scif/apps/scotch/lib',
+        '/scif/apps/mumps-seq/lib',
+        '/scif/apps/scotch-seq/lib',
         '/scif/apps/tfel/lib',
     ])
 
@@ -23,10 +21,9 @@ def configure(self):
         '/scif/apps/hdf5/include',
         '/scif/apps/med/include',
         '/scif/apps/metis/include',
-        '/scif/apps/mumps/include',
-        '/scif/apps/parmetis/include',
-        '/scif/apps/petsc/include',
-        '/scif/apps/scotch/include',
+        '/scif/apps/mumps-seq/include',
+        '/scif/apps/mumps-seq/include_seq',
+        '/scif/apps/scotch-seq/include',
         '/scif/apps/tfel/include',
     ])
 

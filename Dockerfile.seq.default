@@ -1,25 +1,16 @@
-FROM codeastersolver/codeaster-deps-seq:latest as builder
+FROM codeastersolver/codeaster-common:latest as builder
 
-# disable automatic devtools environment sourcing
-ENV DEVTOOLS_COMPUTER_ID=None
+RUN cd /home/aster/dev/codeaster/devtools && \
+    hg pull --rev default && hg update default && \
+    cd /home/aster/dev/codeaster/src && \
+    hg pull --rev default && hg update default && \
+    cp ../scif_std.py ../scif_mpi.py wafcfg/ && \
+    ./waf configure --prefix=/scif/apps/aster --install-tests && \
+    ./waf build
 
-# aster
-ADD aster.wafcfg_scif.py /data/
+USER root
 
-RUN cd /data && rm -rf codeaster && \
-    mkdir -p codeaster && cd codeaster && \
-    hg clone https://bitbucket.org/code_aster/codeaster-devtools devtools && \
-    hg clone --noupdate https://bitbucket.org/code_aster/codeaster-src src
-
-RUN cd /data/codeaster/src && \
-    hg update default && \
-    cp /data/aster.wafcfg_scif.py wafcfg/scif.py && \
-    export PATH=/scif/apps/tfel/bin:/scif/apps/homard:${PATH} && \
-    export LD_LIBRARY_PATH=/scif/apps/tfel/lib && \
-    export PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages && \
-    ln -s /usr/bin/python3 /usr/local/bin/python && \
-    INCLUDES="/scif/apps/mumps/include_seq" \
-        ./waf configure --use-config=scif --prefix=/scif/apps/aster --install-tests && \
+RUN cd /home/aster/dev/codeaster/src && \
     ./waf install
 
 # move testcases to minimize binary image size
@@ -69,7 +60,6 @@ RUN mkdir /data && \
         # tfel
         libboost-numpy-dev \
         libboost-python-dev \
-        patch \
         # asrun
         gdb \
         tk \
