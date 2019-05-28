@@ -1,0 +1,2 @@
+Bootstrap: docker
+From: codeastersolver/codeaster-common:latest

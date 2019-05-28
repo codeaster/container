@@ -50,6 +50,9 @@ mpi: common ## Build parallel `code_aster` image
 clean: ## Remove unused docker data
 	docker system prune -f
 
+simg-common: common ## Build Singularity image for prerequisites
+	$(call build_simg,$(IMG),common,default)
+
 simg-seq: seq ## Build Singularity image for sequential version of `code_aster`
 	$(call build_simg,$(IMG),seq,default)
 
