@@ -1,8 +1,8 @@
 FROM codeastersolver/codeaster-common:latest as builder
 
-RUN cd /home/aster/dev/codeaster/devtools && \
+RUN cd /work/aster/devtools && \
     hg pull --rev default && hg update default && \
-    cd /home/aster/dev/codeaster/src && \
+    cd /work/aster/src && \
     hg pull --rev default && hg update default && \
     cp ../scif_std.py ../scif_mpi.py wafcfg/ && \
     ./waf_mpi configure --prefix=/scif/apps/aster --install-tests && \
@@ -10,17 +10,16 @@ RUN cd /home/aster/dev/codeaster/devtools && \
 
 USER root
 
-RUN cd /home/aster/dev/codeaster/src && \
+RUN cd /work/aster/src && \
     ./waf_mpi install
 
 # move testcases to minimize binary image size
-# keep them in /home/aster/tests to run them with the src image
-RUN mv /scif/apps/aster/share/aster/tests /home/aster/tests && \
+RUN mv /scif/apps/aster/share/aster/tests /work/aster/tests && \
     mkdir /scif/apps/aster/share/aster/tests && \
     for name in forma01a hsnv100a pynl01a sdll100a sslv155a ssnv128a zzzz100f; do \
-        cp /home/aster/tests/${name}* /scif/apps/aster/share/aster/tests/; \
+        cp /work/aster/tests/${name}* /scif/apps/aster/share/aster/tests/; \
     done && \
-    chown -R aster:aster /home/aster/tests
+    chown -R aster:aster /work/aster/tests
 
 # binary installation
 # TODO: "-dev" could probably be removed
@@ -31,8 +30,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # Base system + prerequisites
 # Show all the dependencies of each prerequisite even if some packages are
 # repeated
-RUN mkdir /data && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get upgrade -y --with-new-pkgs -o Dpkg::Options::="--force-confold" && \
     apt-get install -y \
         # base system \
@@ -78,14 +76,12 @@ RUN mkdir /data && \
 ENV LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
 # create aster user
-RUN useradd -ms /bin/bash aster && \
-    mkdir /aster && \
-    chown aster:aster /aster
+RUN mkdir /work && \
+    useradd -b /work -m -s /bin/bash aster
 
 # clean source directory
 RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /var/tmp/* && \
-    rm -rf /data
+    rm -rf /var/lib/apt/lists/* /var/tmp/*
 
 COPY --from=builder /scif /scif
 
@@ -97,4 +93,4 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python && \
 ADD run_testcases /usr/local/bin/
 
 USER aster
-WORKDIR /home/aster
+WORKDIR /work/aster

@@ -55,7 +55,8 @@ RUN mkdir /data && \
 ENV LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 
 # create aster user
-RUN useradd -ms /bin/bash aster
+RUN mkdir /work && \
+    useradd -b /work -m -s /bin/bash aster
 USER aster
 
 # continue as root
@@ -239,20 +240,22 @@ RUN cd /data && rm -rf petsc && \
     make -j 4 PETSC_DIR=/data/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster all && \
     make -j 4 PETSC_DIR=/data/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster install
 
+# clean source directory
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/tmp/* && \
+    rm -rf /data
+
 # aster
 # disable automatic devtools environment sourcing
 ENV DEVTOOLS_COMPUTER_ID=scif
-ADD aster.wafcfg_scif_std.py /data/
-ADD aster.wafcfg_scif_mpi.py /data/
+ADD aster.wafcfg_scif_std.py /work/aster/scif_std.py
+ADD aster.wafcfg_scif_mpi.py /work/aster/scif_mpi.py
 
 ENV LD_LIBRARY_PATH=/scif/apps/tfel/lib
 ENV PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages
 
 USER aster
-WORKDIR /home/aster
+WORKDIR /work/aster
 
-RUN mkdir -p /home/aster/dev/codeaster && cd /home/aster/dev/codeaster && \
-    cp /data/aster.wafcfg_scif_std.py scif_std.py && \
-    cp /data/aster.wafcfg_scif_mpi.py scif_mpi.py && \
-    hg clone --noupdate --rev null https://bitbucket.org/code_aster/codeaster-devtools devtools && \
+RUN hg clone --noupdate --rev null https://bitbucket.org/code_aster/codeaster-devtools devtools && \
     hg clone --noupdate --rev null https://bitbucket.org/code_aster/codeaster-src src
