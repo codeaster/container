@@ -21,7 +21,7 @@ define build_image
 		--build-arg https_proxy=$${https_proxy} \
 		--build-arg http_proxy=$${http_proxy} \
 		--build-arg no_proxy=$${no_proxy} \
-		-f ./Dockerfile.$(2).$(3) -t codeastersolver/$(1)-$(2) .
+		-f ./Dockerfile.$(2).$(3) -t codeastersolver/$(1)-$(2):`cat id.$(3)` .
 endef
 
 define build_simg
@@ -33,6 +33,10 @@ endef
 
 help: ## Print Help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+tag: ## Update identifier file
+	@hg -R ${HOME}/dev/codeaster/src log \
+		--rev 'last(tag() and branch(default))' --template '{tags}' > id.default
 
 build: seq mpi ## Build all `code_aster` images
 
