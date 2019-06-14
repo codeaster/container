@@ -21,14 +21,16 @@ define build_image
 		--build-arg https_proxy=$${https_proxy} \
 		--build-arg http_proxy=$${http_proxy} \
 		--build-arg no_proxy=$${no_proxy} \
-		-f ./Dockerfile.$(2).$(3) -t codeastersolver/$(1)-$(2):`cat id.$(3)` .
+		-f ./Dockerfile.$(2).$(3) -t codeastersolver/$(1)-$(2):latest . ; \
+	docker image tag codeastersolver/$(1)-$(2):latest \
+	                 codeastersolver/$(1)-$(2):`cat id.$(3)`
 endef
 
 define build_simg
 	@echo "building singularity image $(1)-$(2) ($(3))..." ; \
 	[ ! -e images ] && mkdir -p images ; \
 	$(call source_env) ; \
-	sudo -E $(SINGULARITY) build images/$(1)-$(2)-$(3).simg Singularity.$(2).$(3)
+	sudo -E $(SINGULARITY) build images/$(1)-$(2)-`cat id.$(3)`.simg Singularity.$(2).$(3)
 endef
 
 help: ## Print Help
