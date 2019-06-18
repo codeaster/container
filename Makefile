@@ -21,9 +21,9 @@ define build_image
 		--build-arg https_proxy=$${https_proxy} \
 		--build-arg http_proxy=$${http_proxy} \
 		--build-arg no_proxy=$${no_proxy} \
-		-f ./Dockerfile.$(2).$(3) -t codeastersolver/$(1)-$(2):latest . ; \
-	docker image tag codeastersolver/$(1)-$(2):latest \
-	                 codeastersolver/$(1)-$(2):`cat id.$(3)`
+		-f ./Dockerfile.$(2).$(3) -t codeastersolver/$(1)-$(2)$(4):latest . ; \
+	docker image tag codeastersolver/$(1)-$(2)$(4):latest \
+	                 codeastersolver/$(1)-$(2)$(4):`cat id.$(3)`
 endef
 
 define build_simg
@@ -58,7 +58,7 @@ mpi: common ## Build parallel `code_aster` image
 	$(call build_image,$(IMG),$(@),default)
 
 mpixx: common ## Build parallel `code_aster` image, branch `asterxx`
-	$(call build_image,$(IMG),mpi,asterxx)
+	$(call build_image,$(IMG),mpi,asterxx,-asterxx)
 
 clean: ## Remove unused docker data
 	docker system prune -f
