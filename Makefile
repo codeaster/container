@@ -36,9 +36,13 @@ endef
 help: ## Print Help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-tag: ## Update identifier file
+tag: ## Update identifier file (use local source repositories)
 	@hg -R ${HOME}/dev/codeaster/src log \
-		--rev 'last(tag() and branch(default))' --template '{tags}' > id.default
+		--rev 'last(tag() and branch(default))' \
+		--template '{tags}' > id.default ; \
+	hg -R ${HOME}/dev/codeaster-xx/src log \
+		--rev 'last(tag() and branch(default) and ancestors(asterxx))' \
+		--template '{tags}' > id.asterxx
 
 build: seq mpi ## Build all `code_aster` images
 
@@ -52,6 +56,9 @@ seq: common ## Build sequential `code_aster` image
 
 mpi: common ## Build parallel `code_aster` image
 	$(call build_image,$(IMG),$(@),default)
+
+mpixx: common ## Build parallel `code_aster` image, branch `asterxx`
+	$(call build_image,$(IMG),mpi,asterxx)
 
 clean: ## Remove unused docker data
 	docker system prune -f
