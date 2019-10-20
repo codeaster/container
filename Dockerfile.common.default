@@ -122,16 +122,15 @@ RUN cd /data && rm -rf tfel && \
         -DTFEL_SVN_REVISION=${VERSION} -DTFEL_APPEND_VERSION=${VERSION} \
         -DCMAKE_Fortran_COMPILER=/usr/bin/gfortran \
         -Dlocal-castem-header=ON -Denable-fortran=OFF \
-        -DPython_ADDITIONAL_VERSIONS=3.6 -Denable-python=ON \
         -Denable-broken-boost-python-module-visibility-handling=ON \
         -Denable-python-bindings=ON \
         -Denable-cyrano=ON -Denable-aster=ON \
         -Ddisable-reference-doc=ON -Ddisable-website=ON \
         -Denable-portable-build=ON \
+        -DPython_ADDITIONAL_VERSIONS=3.6 -Denable-python=ON \
         -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3 \
         -DPYTHON_LIBRARY:FILEPATH=/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/libpython3.6.so \
         -DPYTHON_INCLUDE_DIR:PATH=/usr/include/python3.6 \
-        -DPython_ADDITIONAL_VERSIONS=3.6 \
         -DCMAKE_INSTALL_PREFIX=/scif/apps/tfel && \
     make -j 4 && \
     make install && \
@@ -146,7 +145,7 @@ RUN cd /data && rm -rf homard && \
     tar xf homard.tar.gz -C homard --strip-components 1 && \
     cd homard && \
     python3 setup_homard.py --prefix=/scif/apps/homard && \
-    ln -s /scif/apps/homard /usr/local/bin/
+    ln -s /scif/apps/homard/homard /usr/local/bin/
 
 # asrun (graphical packages should be removed for servers)
 ADD asrun.external_configuration.py /data/
