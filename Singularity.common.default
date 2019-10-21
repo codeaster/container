@@ -1,12 +1,46 @@
 Bootstrap: docker
-From: phusion/baseimage:0.11
+From: ubuntu:18.04
 
 %labels
 Maintainer  code_aster team http://www.code-aster.org
+Version 20190513
 
 %help
-This container provides prerequisites for sequential and parallel versions
+This container provides prerequisites to build sequential and parallel versions
 of code_aster (from 'default' branch).
+
+
+Using the image to build code_aster development version:
+
+- Start a shell in the container environment:
+
+    singularity shell
+
+- Clone 'src' repository, usually as ${HOME}/dev/codeaster/src:
+
+    mkdir -p ${HOME}/dev/codeaster
+    cd ${HOME}/dev/codeaster
+    hg clone https://mcourtois@bitbucket.org/code_aster/codeaster-src src
+
+- Configure using provided configuration files. For sequential build:
+
+    ./waf configure --use-config-dir=/scif/apps/wafcfg --use-config=scif_std \
+        --singularity-image <path-to-image>/codeaster-common-xxx.simg
+
+    The '--singularity-image' tells that code_aster will be executed through
+    this Singularity image.
+
+- For parallel build, use '--use-config=scif_mpi' instead of '--use-config=scif_std':
+
+    ln -s waf_variant waf_mpi
+    ./waf_mpi configure --use-config-dir=/scif/apps/wafcfg --use-config=scif_mpi \
+        --singularity-image <path-to-image>/codeaster-common-xxx.simg
+
+- Install:
+
+    ./waf install
+    # or
+    ./waf_mpi install
 
 
 %environment
