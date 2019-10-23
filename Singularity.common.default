@@ -87,12 +87,16 @@ update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 mkdir -p ${SINGULARITY_ROOTFS}/data
 
 # hdf5
+%applabels hdf5
+Version 1.10.3
+
 %appinstall hdf5
+VERSION=1.10.3
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf hdf5
 mkdir hdf5
 wget --no-check-certificate --quiet \
-    https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.3/src/hdf5-1.10.3.tar.gz \
+    https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${VERSION}/src/hdf5-${VERSION}.tar.gz \
     -O hdf.tar.gz
 tar xf hdf.tar.gz -C hdf5 --strip-components 1
 cd hdf5
@@ -101,12 +105,16 @@ make -j 4
 make install
 
 # med
+%applabels med
+Version 4.0.0
+
 %appinstall med
+VERSION=4.0.0
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf med
 mkdir med
 wget --no-check-certificate --quiet \
-    http://files.salome-platform.org/Salome/other/med-4.0.0.tar.gz \
+    http://files.salome-platform.org/Salome/other/med-${VERSION}.tar.gz \
     -O med.tar.gz
 tar xf med.tar.gz -C med --strip-components 1
 cd med
@@ -117,33 +125,45 @@ make -j 4
 make install
 
 # metis
+%applabels metis
+Version 5.1.0_aster4
+
 %appinstall metis
+VERSION=5.1.0_aster4
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf metis
 hg clone --noupdate https://bitbucket.org/code_aster/metis metis
 cd metis
-hg update code_aster
+hg update ${VERSION}
 make config prefix=/scif/apps/metis
 make -j 4
 make install
 
 # parmetis
+%applabels parmetis
+Version 4.0.3_aster3
+
 %appinstall parmetis
+VERSION=4.0.3_aster3
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf parmetis
 hg clone --noupdate https://bitbucket.org/code_aster/parmetis
 cd parmetis
-hg update parmetis_aster
+hg update ${VERSION}
 make config CFLAGS="-fPIC -DINTSIZE64" prefix=/scif/apps/parmetis
 make -j 4
 make install
 
 # tfel
+%applabels tfel
+Version 3.2.1
+
 %appinstall tfel
+# version is also used in wafcfg file
+VERSION=3.2.1
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf tfel
 mkdir tfel
-VERSION=3.2.1
 wget --no-check-certificate --quiet \
     https://github.com/thelfer/tfel/archive/TFEL-${VERSION}.tar.gz \
     -O tfel.tar.gz
@@ -171,12 +191,16 @@ make install
 ln -s /scif/apps/tfel/bin/mfront-${VERSION} /usr/local/bin/
 
 # homard
+%applabels homard
+Version 11.12_aster2
+
 %appinstall homard
+VERSION=11.12_aster2
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf homard
 mkdir homard
 wget --no-check-certificate --quiet \
-    https://bitbucket.org/code_aster/homard/get/homard_aster.tar.gz \
+    https://bitbucket.org/code_aster/homard/get/${VERSION}.tar.gz \
     -O homard.tar.gz
 tar xf homard.tar.gz -C homard --strip-components 1
 cd homard
@@ -185,18 +209,23 @@ python3 setup_homard.py --prefix=/scif/apps/homard
 ln -s /scif/apps/homard/homard /usr/local/bin/
 
 # asrun (graphical packages should be removed for servers)
+%applabels asrun
+Version 2019.0-1
+
 %appinstall asrun
+VERSION=2019.0-1
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf asrun
 mkdir asrun
 wget --no-check-certificate --quiet \
-    https://bitbucket.org/code_aster/codeaster-frontend/get/default.tar.gz \
+    https://bitbucket.org/code_aster/codeaster-frontend/get/${VERSION}.tar.gz \
     -O asrun.tar.gz
 tar xf asrun.tar.gz -C asrun --strip-components 1
 cd asrun
 cat << EOF > external_configuration.py
 parameters = {
     "ASTER_VERSION": "unstable",
+    "IFDEF": "LINUX64",
     "MPIRUN": "mpirun -np %(mpi_nbcpu)s --hostfile %(mpi_hostfile)s %(program)s",
     "DEBUGGER_COMMAND": "/usr/bin/gdb --command=@D @E",
     "DEBUGGER_COMMAND_POST": "/usr/bin/gdb -batch --command=@D @E @C",
@@ -212,12 +241,16 @@ printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/et
 ln -s /scif/apps/asrun/bin/as_run /usr/local/bin/
 
 # scotch sequential
+%applabels scotch-seq
+Version 6.0.4_aster7
+
 %appinstall scotch-seq
+VERSION=6.0.4_aster7
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf scotch-seq
 hg clone --noupdate https://bitbucket.org/code_aster/scotch scotch-seq
 cd scotch-seq
-hg update scotch_aster
+hg update ${VERSION}
 cd src
 sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
     -e 's/CCD\s*=.*$/CCD = cc/g' Makefile.inc
@@ -227,12 +260,16 @@ mkdir -p /scif/apps/scotch-seq
 make install prefix=/scif/apps/scotch-seq
 
 # scotch parallel
+%applabels scotch-mpi
+Version 6.0.4_aster7
+
 %appinstall scotch-mpi
+VERSION=6.0.4_aster7
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf scotch-mpi
 hg clone --noupdate https://bitbucket.org/code_aster/scotch scotch-mpi
 cd scotch-mpi
-hg update scotch_aster
+hg update ${VERSION}
 cd src
 sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
     -e 's/CCD\s*=.*$/CCD = mpicc/g' Makefile.inc
@@ -243,12 +280,16 @@ mkdir -p /scif/apps/scotch-mpi
 make install prefix=/scif/apps/scotch-mpi
 
 # mumps sequential
+%applabels mumps-seq
+Version 5.1.2_aster6
+
 %appinstall mumps-seq
+VERSION=5.1.2_aster6
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf mumps-seq
 hg clone --noupdate https://bitbucket.org/code_aster/mumps mumps-seq
 cd mumps-seq
-hg update for_aster
+hg update ${VERSION}
 LIBPATH="/scif/apps/scotch-seq/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
     INCLUDES="/scif/apps/scotch-seq/include /scif/apps/metis/include /scif/apps/parmetis/include" \
     python3 ./waf configure --enable-openmp --enable-metis --enable-scotch \
@@ -257,12 +298,16 @@ python3 ./waf build --jobs=1
 python3 ./waf install --jobs=1
 
 # mumps parallel
+%applabels mumps-mpi
+Version 5.1.2_aster6
+
 %appinstall mumps-mpi
+VERSION=5.1.2_aster6
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf mumps-mpi
 hg clone --noupdate https://bitbucket.org/code_aster/mumps mumps-mpi
 cd mumps-mpi
-hg update for_aster
+hg update ${VERSION}
 LIBPATH="/scif/apps/scotch-mpi/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
     INCLUDES="/scif/apps/scotch-mpi/include /scif/apps/metis/include /scif/apps/parmetis/include" \
     python3 ./waf configure --enable-mpi --enable-openmp --enable-metis --enable-parmetis --enable-scotch \
@@ -271,12 +316,16 @@ python3 ./waf build --jobs=1
 python3 ./waf install --jobs=1
 
 # petsc
+%applabels petsc
+Version 3.9.4_aster
+
 %appinstall petsc
+VERSION=3.9.4_aster
 cd ${SINGULARITY_ROOTFS}/data
 rm -rf petsc
 hg clone --noupdate https://bitbucket.org/code_aster/petsc
 cd petsc
-hg update petsc_aster
+hg update ${VERSION}
 cd petsc-src
 ./configure \
     --with-debugging=0 \
