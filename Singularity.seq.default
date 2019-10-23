@@ -1,3 +1,57 @@
-Bootstrap: docker
-From: codeastersolver/codeaster-seq:latest
+Bootstrap: localimage
+From: codeaster-common-20190513.simg
 
+%help
+code_aster sequential version.
+
+To allow a salome_meca/asterstudy installation to use this code_aster version
+from outside the container, just use the 'install' app:
+
+    singularity run --app aster <path-to-this-image>
+
+This command will create some files near the image.
+
+%files
+run_testcases /usr/local/bin/run_testcases
+
+# aster
+%appinstall aster
+BASE=/work/codeaster
+# source environment from parent image
+. /.singularity.d/env/90-environment.sh
+
+# URLdevtools=https://bitbucket.org/code_aster/codeaster-devtools
+# URLsrc=https://bitbucket.org/code_aster/codeaster-src
+# URLdevtools=http://aster-repo.der.edf.fr/scm/hg/codeaster/devtools
+# URLsrc=http://aster-repo.der.edf.fr/scm/hg/codeaster/src
+URLdevtools=http://localhost:8001/
+URLsrc=http://localhost:8000/
+
+mkdir -p ${BASE}
+repo=devtools
+printf "creating repository '${repo}'...\n"
+cd ${BASE}
+hg clone --rev null ${URLdevtools} ${repo} > /dev/null
+cd ${BASE}/${repo}
+hg pull --rev default && hg update default
+
+repo=src
+printf "creating repository '${repo}'...\n"
+cd ${BASE}
+hg clone --rev null ${URLsrc} ${repo} > /dev/null
+cd ${BASE}/${repo}
+hg pull --rev default && hg update default
+
+
+cd ${BASE}/src
+./waf configure \
+    --prefix=/scif/apps/aster \
+    --use-config-dir=/scif/apps/wafcfg --use-config=scif_std \
+    --singularity-image=building-image
+./waf install
+
+# cleanup
+rm -rf /work
+
+%apprun aster
+/scif/apps/aster/share/aster/create_install_script
