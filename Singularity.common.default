@@ -14,18 +14,19 @@ Using the image to build code_aster development version:
 
 - Start a shell in the container environment:
 
-    singularity shell
+    singularity shell <path-to-this-image>
 
 - Clone 'src' repository, usually as ${HOME}/dev/codeaster/src:
 
     mkdir -p ${HOME}/dev/codeaster
     cd ${HOME}/dev/codeaster
-    hg clone https://mcourtois@bitbucket.org/code_aster/codeaster-src src
+    hg clone https://bitbucket.org/code_aster/codeaster-src src
 
 - Configure using provided configuration files. For sequential build:
 
+    cd ${HOME}/dev/codeaster/src
     ./waf configure --use-config-dir=/scif/apps/wafcfg --use-config=scif_std \
-        --singularity-image <path-to-image>/codeaster-common-xxx.simg
+        --singularity-image <path-to-this-image>
 
     The '--singularity-image' tells that code_aster will be executed through
     this Singularity image.
@@ -34,7 +35,7 @@ Using the image to build code_aster development version:
 
     ln -s waf_variant waf_mpi
     ./waf_mpi configure --use-config-dir=/scif/apps/wafcfg --use-config=scif_mpi \
-        --singularity-image <path-to-image>/codeaster-common-xxx.simg
+        --singularity-image <path-to-this-image>
 
 - Install:
 
@@ -377,4 +378,4 @@ def configure(self):
 EOFboost
 
 %runscript
-echo "See --help."
+echo "Please use: singularity help <path-to-this-image>"
