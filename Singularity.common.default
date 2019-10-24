@@ -120,9 +120,12 @@ tar xf med.tar.gz -C med --strip-components 1
 cd med
 alias python=python3
 F77=gfortran CXXFLAGS='-std=gnu++98' PYTHON=/usr/bin/python3 \
-    ./configure --disable-mesgerr --with-hdf5=/scif/apps/hdf5 --prefix=/scif/apps/med
+    ./configure --disable-mesgerr --with-hdf5=/scif/apps/hdf5 \
+        --prefix=/scif/apps/med
 make -j 4
 make install
+# documentation costs ~100 MB
+rm -rf /scif/apps/med/share/doc/med
 
 # metis
 %applabels metis
