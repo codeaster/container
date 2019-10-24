@@ -12,6 +12,7 @@ _usage()
     echo "  --np=N (-n N)           Number of processes to run (default: $(nproc))."
     echo "  --limit=NB (-l NB)      Execute only NB tests."
     echo "  --tests=DIR (-t DIR)    Use testcases from this directory."
+    echo "  --workdir=WRK (-w WRK)  Directory to be used for the results files."
     echo
     exit "${1:-1}"
 }
@@ -26,7 +27,7 @@ run_main()
     local workdir=$(mktemp -d /tmp/workdir.XXXXXX)
 
     local option
-    OPTS=$(getopt -o htn:l: --long help,test,np:,limit:,tests: -n $(basename $0) -- "$@")
+    OPTS=$(getopt -o htn:l:w: --long help,test,np:,limit:,tests:,workdir: -n $(basename $0) -- "$@")
     if [ $? != 0 ] ; then
         echo "invalid arguments." ; _usage 2
     fi
