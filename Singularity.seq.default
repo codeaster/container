@@ -4,6 +4,23 @@ From: codeaster-common-20190513.simg
 %help
 code_aster sequential version.
 
+Run testcases
+-------------
+
+To limit the image size only a few testcases are provided.
+They can be executed using:
+
+    singularity exec <path-to-this-image> run_testcases unstable
+
+Testcases results are available in '/tmp/workdir.XXXX'.
+
+To execute more testcases, pass '--tests' option to 'run_testcases' to give a
+directory that contains testcases files.
+
+
+Installation
+------------
+
 To allow a salome_meca/asterstudy installation to use this code_aster version
 from outside the container, just use the 'install' app:
 
@@ -46,9 +63,21 @@ hg pull --rev default && hg update default
 cd ${BASE}/src
 ./waf configure \
     --prefix=/scif/apps/aster \
-    --use-config-dir=/scif/apps/wafcfg --use-config=scif_std \
-    --singularity-image=building-image
+    --use-config-dir=/scif/apps/wafcfg --use-config=scif_std
 ./waf install
+
+# clean config.txt
+grep -v /work /scif/apps/aster/share/aster/config.txt > config.tmp
+echo 'SRCTEST        | src     | -     | $ASTER_VERSION_DIR/tests' >> config.tmp
+cp config.tmp /scif/apps/aster/share/aster/config.txt
+
+# keep only some testcases
+rm /scif/apps/aster/share/aster/tests
+mkdir /scif/apps/aster/share/aster/tests
+for name in forma01a hsnv100a pynl01a sdll100a sslv155a ssnv128a zzzz100f
+do
+    cp ${BASE}/src/astest/${name}* /scif/apps/aster/share/aster/tests/
+done
 
 # cleanup
 rm -rf /work

@@ -2,3 +2,5 @@ env.d/*
 images/
 .local/
 .vscode/
+*.simg
+
