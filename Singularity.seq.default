@@ -16,6 +16,13 @@ Testcases results are available in '/tmp/workdir.XXXX'.
 
 To execute more testcases, pass '--tests' option to 'run_testcases' to give a
 directory that contains testcases files.
+The directory containing the testcases can also be mounted as
+'/scif/apps/aster/share/aster/tests'.
+Some testcases may need confidential data files. This kind of directories
+('tests_data', 'datg', 'materiau') can be mounted
+as '/scif/apps/aster/share/aster/tests_data', etc..
+
+See 'run_testcases --help' for all options.
 
 
 Installation
