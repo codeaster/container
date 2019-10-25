@@ -5,7 +5,9 @@ def configure(self):
     self.env['ADDMEM'] = 600
 
     self.env['TFELHOME'] = '/scif/apps/tfel'
-    self.env['TFELVERS'] = '3.2.1'
+    with open('/scif/apps/tfel/scif/labels.json', 'r') as flab:
+        dlab = eval(flab.read())
+    self.env['TFELVERS'] = dlab['VERSION']
     self.env['CATALO_CMD'] = "DUMMY="
 
     self.env.append_value('LIBPATH', [

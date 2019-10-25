@@ -9,6 +9,14 @@ Version 20190513
 This container provides prerequisites to build sequential and parallel versions
 of code_aster (from 'default' branch).
 
+To build code_aster using these prerequisites, see:
+
+    singularity help --app aster <path-to-this-image>
+
+
+%apphelp aster
+This container provides prerequisites to build sequential and parallel versions
+of code_aster (from 'default' branch).
 
 Using the image to build code_aster development version:
 
@@ -214,6 +222,9 @@ ln -s /scif/apps/homard/homard /usr/local/bin/
 %applabels asrun
 Version 2019.0-1
 
+%appfiles asrun
+asrun.external_configuration.py share/external_configuration.py
+
 %appinstall asrun
 VERSION=2019.0-1
 cd ${SINGULARITY_ROOTFS}/data
@@ -224,19 +235,7 @@ wget --no-check-certificate --quiet \
     -O asrun.tar.gz
 tar xf asrun.tar.gz -C asrun --strip-components 1
 cd asrun
-cat << EOF > external_configuration.py
-parameters = {
-    "ASTER_VERSION": "unstable",
-    "IFDEF": "LINUX64",
-    "MPIRUN": "mpirun -np %(mpi_nbcpu)s --hostfile %(mpi_hostfile)s %(program)s",
-    "DEBUGGER_COMMAND": "/usr/bin/gdb --command=@D @E",
-    "DEBUGGER_COMMAND_POST": "/usr/bin/gdb -batch --command=@D @E @C",
-    "NODE": "localhost",
-    "PS_COMMAND_CPU": "/bin/ps -e --width=512 -ocputime -ocommand",
-    "PS_COMMAND_PID": "/bin/ps -e --width=512 -opid -ocommand",
-    "TERMINAL": "/usr/bin/xterm",
-}
-EOF
+cp /scif/apps/asrun/share/external_configuration.py external_configuration.py
 python3 setup.py install --prefix=/scif/apps/asrun
 sed -i "s/mpi_get_procid_cmd : echo \$PMI_RANK/mpi_get_procid_cmd : echo \$OMPI_COMM_WORLD_RANK/" /scif/apps/asrun/etc/codeaster/asrun
 printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
@@ -354,81 +353,10 @@ rm -rf /var/lib/apt/lists/* /var/tmp/*
 rm -rf ${SINGULARITY_ROOTFS}/data
 
 # aster
-%appinstall wafcfg
-cat << EOFstd > /scif/apps/wafcfg/scif_std.py
-def configure(self):
-    opts = self.options
-
-    # self.env.append_value('CXXFLAGS', ['-D_GLIBCXX_USE_CXX11_ABI=0'])
-    self.env['ADDMEM'] = 600
-
-    self.env['TFELHOME'] = '/scif/apps/tfel'
-    with open('/scif/apps/tfel/scif/labels.json', 'r') as flab:
-        dlab = eval(flab.read())
-    self.env['TFELVERS'] = dlab['VERSION']
-    self.env['CATALO_CMD'] = "DUMMY="
-
-    self.env.append_value('LIBPATH', [
-        '/scif/apps/hdf5/lib',
-        '/scif/apps/med/lib',
-        '/scif/apps/metis/lib',
-        '/scif/apps/mumps-seq/lib',
-        '/scif/apps/scotch-seq/lib',
-        '/scif/apps/tfel/lib',
-    ])
-
-    self.env.append_value('INCLUDES', [
-        '/scif/apps/hdf5/include',
-        '/scif/apps/med/include',
-        '/scif/apps/metis/include',
-        '/scif/apps/mumps-seq/include',
-        '/scif/apps/mumps-seq/include_seq',
-        '/scif/apps/scotch-seq/include',
-        '/scif/apps/tfel/include',
-    ])
-
-    # to fail if not found
-    opts.enable_hdf5 = True
-    opts.enable_med = True
-    opts.enable_metis = True
-    opts.enable_mumps = True
-    opts.enable_scotch = True
-    opts.enable_mfront = True
-EOFstd
-
-cat << EOFmpi > /scif/apps/wafcfg/scif_mpi.py
-import scif_std
-
-def configure(self):
-    opts = self.options
-    opts.parallel = True
-
-    scif_std.configure(self)
-
-    self.env.prepend_value('LIBPATH', [
-        '/scif/apps/mumps-mpi/lib',
-        '/scif/apps/parmetis/lib',
-        '/scif/apps/petsc/lib',
-        '/scif/apps/scotch-mpi/lib',
-    ])
-
-    self.env.prepend_value('INCLUDES', [
-        '/scif/apps/mumps-mpi/include',
-        '/scif/apps/parmetis/include',
-        '/scif/apps/petsc/include',
-        '/scif/apps/scotch-mpi/include',
-    ])
-
-    # to fail if not found
-    opts.enable_petsc = True
-EOFmpi
-
-cat << EOFboost > /scif/apps/wafcfg/scif_boost.py
-def configure(self):
-    self.env.INCLUDES_BOOST = '/usr/include'
-    self.env.LIBPATH_BOOST = ['/usr/lib/x86_64-linux-gnu']
-    self.env.LIB_BOOST = ['boost_python3']
-EOFboost
+%appfiles aster
+aster.wafcfg_scif_std.py wafcfg/scif_std.py
+aster.wafcfg_scif_mpi.py wafcfg/scif_mpi.py
+aster.wafcfg_scif_boost.py wafcfg/scif_boost.py
 
 %runscript
 echo "Please use: singularity help <path-to-this-image>"
