@@ -33,7 +33,7 @@ Using the image to build code_aster development version:
 - Configure using provided configuration files. For sequential build:
 
     cd ${HOME}/dev/codeaster/src
-    ./waf configure --use-config-dir=/scif/apps/wafcfg --use-config=scif_std \
+    ./waf configure --use-config-dir=/scif/apps/lib --use-config=scif_std \
         --singularity-image <path-to-this-image>
 
     The '--singularity-image' tells that code_aster will be executed through
@@ -42,7 +42,7 @@ Using the image to build code_aster development version:
 - For parallel build, use '--use-config=scif_mpi' instead of '--use-config=scif_std':
 
     ln -s waf_variant waf_mpi
-    ./waf_mpi configure --use-config-dir=/scif/apps/wafcfg --use-config=scif_mpi \
+    ./waf_mpi configure --use-config-dir=/scif/apps/lib --use-config=scif_mpi \
         --singularity-image <path-to-this-image>
 
 - Install:
@@ -223,7 +223,7 @@ ln -s /scif/apps/homard/homard /usr/local/bin/
 Version 2019.0-1
 
 %appfiles asrun
-asrun.external_configuration.py share/external_configuration.py
+asrun.external_configuration.py lib/external_configuration.py
 
 %appinstall asrun
 VERSION=2019.0-1
@@ -235,7 +235,7 @@ wget --no-check-certificate --quiet \
     -O asrun.tar.gz
 tar xf asrun.tar.gz -C asrun --strip-components 1
 cd asrun
-cp /scif/apps/asrun/share/external_configuration.py external_configuration.py
+mv /scif/apps/asrun/lib/external_configuration.py external_configuration.py
 python3 setup.py install --prefix=/scif/apps/asrun
 sed -i "s/mpi_get_procid_cmd : echo \$PMI_RANK/mpi_get_procid_cmd : echo \$OMPI_COMM_WORLD_RANK/" /scif/apps/asrun/etc/codeaster/asrun
 printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster
@@ -354,9 +354,9 @@ rm -rf ${SINGULARITY_ROOTFS}/data
 
 # aster
 %appfiles aster
-aster.wafcfg_scif_std.py wafcfg/scif_std.py
-aster.wafcfg_scif_mpi.py wafcfg/scif_mpi.py
-aster.wafcfg_scif_boost.py wafcfg/scif_boost.py
+aster.wafcfg_scif_std.py lib/scif_std.py
+aster.wafcfg_scif_mpi.py lib/scif_mpi.py
+aster.wafcfg_scif_boost.py lib/scif_boost.py
 
 %runscript
 echo "Please use: singularity help <path-to-this-image>"
