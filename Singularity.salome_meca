@@ -1,0 +1,18 @@
+Bootstrap: localimage
+From: codeaster-seq-15.0.16.sif
+
+%help
+salome_meca 2019.0.1 universal + code_aster 15.0.16 sequential.
+
+%files
+salome_meca-2019.0.1-2-LGPL.run /salome_meca.run
+
+%environment
+export PATH=$PATH:/scif/apps/salome_meca/appli_V2019_univ
+
+# salome_meca
+%appinstall salome_meca
+VERSION=2019.0.1
+
+bash /salome_meca.run -t /scif/apps/salome_meca -d -m -l English
+rm -f /salome_meca.run

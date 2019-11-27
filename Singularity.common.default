@@ -11,7 +11,7 @@ of code_aster (from 'default' branch).
 
 To build code_aster using these prerequisites, see:
 
-    singularity help --app aster <path-to-this-image>
+    singularity run-help --app aster <path-to-this-image>
 
 
 %apphelp aster
@@ -57,6 +57,7 @@ export LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 export DEVTOOLS_COMPUTER_ID=scif
 export LD_LIBRARY_PATH=/scif/apps/tfel/lib
 export PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages
+alias ll='ls -lA'
 
 %post
 export LANG=en_US.UTF-8 LC_MESSAGES=POSIX
@@ -359,4 +360,4 @@ aster.wafcfg_scif_mpi.py lib/scif_mpi.py
 aster.wafcfg_scif_boost.py lib/scif_boost.py
 
 %runscript
-echo "Please use: singularity help <path-to-this-image>"
+echo "Please use: singularity run-help <path-to-this-image>"

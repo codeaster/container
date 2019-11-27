@@ -1,5 +1,5 @@
 Bootstrap: localimage
-From: codeaster-common-20190513.simg
+From: codeaster-common-20190513.sif
 
 %help
 code_aster sequential version.
@@ -40,7 +40,7 @@ run_testcases /usr/local/bin/run_testcases
 
 # aster
 %appinstall aster
-VERSION=default
+VERSION=f1ab20d94ea4
 BASE=/work/codeaster
 # source environment from parent image
 . /.singularity.d/env/90-environment.sh
