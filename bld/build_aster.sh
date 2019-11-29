@@ -5,12 +5,17 @@ BASE=/work/codeaster
 # source environment from parent image
 [ -f /.singularity.d/env/90-environment.sh ] && . /.singularity.d/env/90-environment.sh
 
-# URLdevtools=https://bitbucket.org/code_aster/codeaster-devtools
-# URLsrc=https://bitbucket.org/code_aster/codeaster-src
-URLdevtools=http://aster-repo.der.edf.fr/scm/hg/codeaster/devtools
-URLsrc=http://aster-repo.der.edf.fr/scm/hg/codeaster/src
-# URLdevtools=http://localhost:8001/
-# URLsrc=http://localhost:8000/
+ping -W 3 -c 1 aster-repo.der.edf.fr > /dev/null 2>&1
+isedf=$?
+if [ ${isedf} -eq 0 ]; then
+    URLdevtools=http://aster-repo.der.edf.fr/scm/hg/codeaster/devtools
+    URLsrc=http://aster-repo.der.edf.fr/scm/hg/codeaster/src
+    # URLdevtools=http://localhost:8001/
+    # URLsrc=http://localhost:8000/
+else
+    URLdevtools=https://bitbucket.org/code_aster/codeaster-devtools
+    URLsrc=https://bitbucket.org/code_aster/codeaster-src
+fi
 
 mkdir -p ${BASE}
 repo=devtools
