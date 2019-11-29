@@ -5,7 +5,7 @@ ENV LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 ENV DEVTOOLS_COMPUTER_ID=scif
 ENV LD_LIBRARY_PATH=/scif/apps/tfel/lib
 ENV PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages
-ENV SINGULARITY_ROOTFS=
+ENV DATA=/data
 
 # Use same filesystem organisation as for Singularity Apps
 # https://www.sylabs.io/guides/3.2/user-guide/definition_files.html#apps
@@ -13,260 +13,59 @@ ENV SINGULARITY_ROOTFS=
 # Base system + prerequisites
 # Show all the dependencies of each prerequisite even if some packages are
 # repeated
-RUN mkdir /data && \
-    apt-get update && \
-    apt-get upgrade -y --with-new-pkgs -o Dpkg::Options::="--force-confold" && \
-    apt-get install -y \
-        cmake \
-        g++ \
-        gcc \
-        gfortran \
-        locales \
-        make \
-        mercurial \
-        wget \
-        zlib1g-dev \
-        python3-dev \
-        bison \
-        flex \
-        zlib1g-dev \
-        libopenblas-dev \
-        python3-dev \
-        python3-numpy \
-        libboost-numpy-dev \
-        libboost-python-dev \
-        libopenmpi-dev \
-        libblacs-mpi-dev \
-        libscalapack-openmpi-dev \
-        gdb \
-        tk \
-        xterm \
-        gmsh \
-        grace \
-        && \
-    locale-gen en_GB.UTF-8 en_US.UTF-8 fr_FR.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
+ADD bld/build_common.sh /
+ADD bld/build_hdf5.sh /
+ADD bld/build_med.sh /
+ADD bld/build_metis.sh /
+ADD bld/build_parmetis.sh /
+ADD bld/build_tfel.sh /
+ADD bld/build_homard.sh /
+ADD bld/build_asrun.sh /
+ADD bld/build_scotch-seq.sh /
+ADD bld/build_scotch-mpi.sh /
+ADD bld/build_mumps-seq.sh /
+ADD bld/build_mumps-mpi.sh /
+ADD bld/build_petsc.sh /
 
-# continue as root
-USER root
+RUN /build_common.sh && /build_common.sh
 
 # hdf5
-RUN \
-VERSION=1.10.3 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf hdf5 && \
-mkdir hdf5 && \
-wget --no-check-certificate --quiet \
-    https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${VERSION}/src/hdf5-${VERSION}.tar.gz \
-    -O hdf.tar.gz && \
-tar xf hdf.tar.gz -C hdf5 --strip-components 1 && \
-cd hdf5 && \
-./configure --prefix=/scif/apps/hdf5 && \
-make -j 4 && \
-make install
+RUN /build_hdf5.sh && rm -f /build_hdf5.sh
 
 # med
-RUN \
-VERSION=4.0.0 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf med && \
-mkdir med && \
-wget --no-check-certificate --quiet \
-    http://files.salome-platform.org/Salome/other/med-${VERSION}.tar.gz \
-    -O med.tar.gz && \
-tar xf med.tar.gz -C med --strip-components 1 && \
-cd med && \
-alias python=python3 && \
-F77=gfortran CXXFLAGS='-std=gnu++98' PYTHON=/usr/bin/python3 \
-    ./configure --disable-mesgerr --with-hdf5=/scif/apps/hdf5 \
-        --prefix=/scif/apps/med && \
-make -j 4 && \
-make install && \
-rm -rf /scif/apps/med/share/doc/med
-# documentation costs ~100 MB
+RUN /build_med.sh && rm -f /build_med.sh
 
 # metis
-RUN \
-VERSION=5.1.0_aster4 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf metis && \
-hg clone --noupdate https://bitbucket.org/code_aster/metis metis && \
-cd metis && \
-hg update ${VERSION} && \
-make config prefix=/scif/apps/metis && \
-make -j 4 && \
-make install
+RUN /build_metis.sh && rm -f /build_metis.sh
 
 # parmetis
-RUN \
-VERSION=4.0.3_aster3 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf parmetis && \
-hg clone --noupdate https://bitbucket.org/code_aster/parmetis && \
-cd parmetis && \
-hg update ${VERSION} && \
-make config CFLAGS="-fPIC -DINTSIZE64" prefix=/scif/apps/parmetis && \
-make -j 4 && \
-make install
+RUN /build_parmetis.sh && rm -f /build_parmetis.sh
 
 # tfel
-RUN \
-VERSION=3.2.1 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf tfel && \
-mkdir tfel && \
-wget --no-check-certificate --quiet \
-    https://github.com/thelfer/tfel/archive/TFEL-${VERSION}.tar.gz \
-    -O tfel.tar.gz && \
-tar xf tfel.tar.gz -C tfel --strip-components 1 && \
-cd tfel && \
-mkdir build && \
-cd build && \
-cmake .. \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DTFEL_SVN_REVISION=${VERSION} -DTFEL_APPEND_VERSION=${VERSION} \
-    -DCMAKE_Fortran_COMPILER=/usr/bin/gfortran \
-    -Dlocal-castem-header=ON -Denable-fortran=OFF \
-    -Denable-broken-boost-python-module-visibility-handling=ON \
-    -Denable-python-bindings=ON \
-    -Denable-cyrano=ON -Denable-aster=ON \
-    -Ddisable-reference-doc=ON -Ddisable-website=ON \
-    -Denable-portable-build=ON \
-    -DPython_ADDITIONAL_VERSIONS=3.6 -Denable-python=ON \
-    -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3 \
-    -DPYTHON_LIBRARY:FILEPATH=/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/libpython3.6.so \
-    -DPYTHON_INCLUDE_DIR:PATH=/usr/include/python3.6 \
-    -DCMAKE_INSTALL_PREFIX=/scif/apps/tfel && \
-make -j 4 && \
-make install && \
-ln -s /scif/apps/tfel/bin/mfront-${VERSION} /usr/local/bin/
+RUN /build_tfel.sh && rm -f /build_tfel.sh
 
 # homard
-RUN \
-VERSION=11.12_aster2 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf homard && \
-mkdir homard && \
-wget --no-check-certificate --quiet \
-    https://bitbucket.org/code_aster/homard/get/${VERSION}.tar.gz \
-    -O homard.tar.gz && \
-tar xf homard.tar.gz -C homard --strip-components 1 && \
-cd homard && \
-export LANG=en_US.UTF-8 LC_MESSAGES=POSIX && \
-python3 setup_homard.py --prefix=/scif/apps/homard && \
-ln -s /scif/apps/homard/homard /usr/local/bin/
+RUN /build_homard.sh && rm -f /build_homard.sh
 
 # asrun (graphical packages should be removed for servers)
 RUN mkdir -p /scif/apps/asrun/lib
-ADD asrun.external_configuration.py /scif/apps/asrun/lib/
-
-RUN \
-VERSION=2019.0-1 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf asrun && \
-mkdir asrun && \
-wget --no-check-certificate --quiet \
-    https://bitbucket.org/code_aster/codeaster-frontend/get/${VERSION}.tar.gz \
-    -O asrun.tar.gz && \
-tar xf asrun.tar.gz -C asrun --strip-components 1 && \
-cd asrun && \
-mv /scif/apps/asrun/lib/external_configuration.py external_configuration.py && \
-python3 setup.py install --prefix=/scif/apps/asrun && \
-sed -i "s/mpi_get_procid_cmd : echo \$PMI_RANK/mpi_get_procid_cmd : echo \$OMPI_COMM_WORLD_RANK/" /scif/apps/asrun/etc/codeaster/asrun && \
-printf "\nvers : unstable:/scif/apps/aster/share/aster\n" >> /scif/apps/asrun/etc/codeaster/aster && \
-ln -s /scif/apps/asrun/bin/as_run /usr/local/bin/
-
+ADD asrun.external_configuration.py /scif/apps/asrun/lib/external_configuration.py
+RUN /build_asrun.sh && rm -f /build_asrun.sh
 
 # scotch sequential
-RUN \
-VERSION=6.0.4_aster7 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf scotch-seq && \
-hg clone --noupdate https://bitbucket.org/code_aster/scotch scotch-seq && \
-cd scotch-seq && \
-hg update ${VERSION} && \
-cd src && \
-sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
-    -e 's/CCD\s*=.*$/CCD = cc/g' Makefile.inc && \
-make scotch && \
-make esmumps && \
-mkdir -p /scif/apps/scotch-seq && \
-make install prefix=/scif/apps/scotch-seq
+RUN /build_scotch-seq.sh && rm -f /build_scotch-seq.sh
 
 # scotch parallel
-RUN \
-VERSION=6.0.4_aster7 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf scotch-mpi && \
-hg clone --noupdate https://bitbucket.org/code_aster/scotch scotch-mpi && \
-cd scotch-mpi && \
-hg update ${VERSION} && \
-cd src && \
-sed -i -e 's/CFLAGS\s*=/CFLAGS = -Wl,--no-as-needed/g' \
-    -e 's/CCD\s*=.*$/CCD = mpicc/g' Makefile.inc
-make scotch && \
-make ptscotch && \
-make esmumps && \
-mkdir -p /scif/apps/scotch-mpi && \
-make install prefix=/scif/apps/scotch-mpi
+RUN /build_scotch-mpi.sh && rm -f /build_scotch-mpi.sh
 
 # mumps sequential
-RUN \
-VERSION=5.1.2_aster6 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf mumps-seq && \
-hg clone --noupdate https://bitbucket.org/code_aster/mumps mumps-seq && \
-cd mumps-seq && \
-hg update ${VERSION} && \
-LIBPATH="/scif/apps/scotch-seq/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
-    INCLUDES="/scif/apps/scotch-seq/include /scif/apps/metis/include /scif/apps/parmetis/include" \
-    python3 ./waf configure --enable-openmp --enable-metis --enable-scotch \
-        --install-tests --prefix=/scif/apps/mumps-seq && \
-python3 ./waf build --jobs=1 && \
-python3 ./waf install --jobs=1
+RUN /build_mumps-seq.sh && rm -f /build_mumps-seq.sh
 
 # mumps parallel
-RUN \
-VERSION=5.1.2_aster6 && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf mumps-mpi && \
-hg clone --noupdate https://bitbucket.org/code_aster/mumps mumps-mpi && \
-cd mumps-mpi && \
-hg update ${VERSION} && \
-LIBPATH="/scif/apps/scotch-mpi/lib /scif/apps/metis/lib /scif/apps/parmetis/lib" \
-    INCLUDES="/scif/apps/scotch-mpi/include /scif/apps/metis/include /scif/apps/parmetis/include" \
-    python3 ./waf configure --enable-mpi --enable-openmp --enable-metis --enable-parmetis --enable-scotch \
-        --install-tests --prefix=/scif/apps/mumps-mpi && \
-python3 ./waf build --jobs=1 && \
-python3 ./waf install --jobs=1
+RUN /build_mumps-mpi.sh && rm -f /build_mumps-mpi.sh
 
 # petsc
-RUN \
-VERSION=3.9.4_aster && \
-cd ${SINGULARITY_ROOTFS}/data && \
-rm -rf petsc && \
-hg clone --noupdate https://bitbucket.org/code_aster/petsc && \
-cd petsc && \
-hg update ${VERSION} && \
-cd petsc-src && \
-./configure \
-    --with-debugging=0 \
-    --with-mpi=1 \
-    --with-ssl=0 \
-    --with-x=0 \
-    --with-mumps-lib="-L/scif/apps/mumps-mpi/lib -lzmumps -ldmumps -lmumps_common -lpord -L/scif/apps/scotch-mpi/lib -lesmumps -lptscotch -lptscotcherr -lptscotcherrexit -lscotch -lscotcherr -lscotcherrexit -L/scif/apps/parmetis/lib -lparmetis -L/scif/apps/metis/lib -lmetis" \
-    --with-mumps-include=/scif/apps/mumps-mpi/include \
-    --with-blas-lapack-lib="-lopenblas -llapack -lblacsCinit-openmpi -lblacsF77init-openmpi -lblacs-openmpi" \
-    --with-scalapack-lib="-lscalapack-openmpi" \
-    --PETSC_ARCH=arch-linux2-codeaster \
-    --download-ml=${SINGULARITY_ROOTFS}/data/petsc/3rd/petsc-pkg-ml-e5040d11aa07.tar.gz \
-    --download-hypre=${SINGULARITY_ROOTFS}/data/petsc/3rd/hypre-2.14.0.tar.gz \
-    --download-superlu=${SINGULARITY_ROOTFS}/data/petsc/3rd/superlu-a0819410c9eb779f9b296cdd95fbdfd96986ae10.tar.gz \
-    --with-openmp=0 \
-    LIBS=-lgomp \
-    --prefix=/scif/apps/petsc && \
-make -j 4 PETSC_DIR=${SINGULARITY_ROOTFS}/data/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster all && \
-make -j 4 PETSC_DIR=${SINGULARITY_ROOTFS}/data/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster install
+RUN /build_petsc.sh && rm -f /build_petsc.sh
 
 # clean source directory
 RUN \

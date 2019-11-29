@@ -17,18 +17,6 @@ define source_env
 	done
 endef
 
-define build_image
-	@echo "building docker image $(1)-$(2) ($(3))..." ; \
-	$(call source_env) ; \
-	docker build \
-		--build-arg https_proxy=$${https_proxy} \
-		--build-arg http_proxy=$${http_proxy} \
-		--build-arg no_proxy=$${no_proxy} \
-		-f ./Dockerfile.$(2).$(3) -t codeastersolver/$(1)-$(2)$(4):latest . ; \
-	docker image tag codeastersolver/$(1)-$(2)$(4):latest \
-	                 codeastersolver/$(1)-$(2)$(4):$$(cat id.$(3))
-endef
-
 define build_simg
 	@echo "building singularity image $(1)-$(2) ($(3))..." ; \
 	[ ! -e images ] && mkdir -p images ; \
@@ -66,16 +54,48 @@ build: seq mpi ## Build all `code_aster` images
 simg: simg-seq simg-mpi ## Build all `code_aster` singularity images
 
 common: ## Build base image for prerequisites
-	$(call build_image,$(IMG),$(@),default)
+	@echo "building docker image from Dockerfile.common.default" ; \
+	$(call source_env) ; \
+	docker build \
+		--build-arg https_proxy=$${https_proxy} \
+		--build-arg http_proxy=$${http_proxy} \
+		--build-arg no_proxy=$${no_proxy} \
+		-f ./Dockerfile.common.default -t codeastersolver/codeaster-common:latest . ; \
+	docker image tag codeastersolver/codeaster-common:latest \
+	                 codeastersolver/codeaster-common:$$(cat id.common)
 
 seq: common ## Build sequential `code_aster` image
-	$(call build_image,$(IMG),$(@),default)
+	@echo "building docker image from Dockerfile.seq.default" ; \
+	$(call source_env) ; \
+	docker build \
+		--build-arg https_proxy=$${https_proxy} \
+		--build-arg http_proxy=$${http_proxy} \
+		--build-arg no_proxy=$${no_proxy} \
+		-f ./Dockerfile.seq.default -t codeastersolver/codeaster-seq:latest . ; \
+	docker image tag codeastersolver/codeaster-seq:latest \
+	                 codeastersolver/codeaster-seq:$$(cat id.default)
 
 mpi: common ## Build parallel `code_aster` image
-	$(call build_image,$(IMG),$(@),default)
+	@echo "building docker image from Dockerfile.mpi.default" ; \
+	$(call source_env) ; \
+	docker build \
+		--build-arg https_proxy=$${https_proxy} \
+		--build-arg http_proxy=$${http_proxy} \
+		--build-arg no_proxy=$${no_proxy} \
+		-f ./Dockerfile.mpi.default -t codeastersolver/codeaster-mpi:latest . ; \
+	docker image tag codeastersolver/codeaster-mpi:latest \
+	                 codeastersolver/codeaster-mpi:$$(cat id.default)
 
 mpixx: common ## Build parallel `code_aster` image, branch `asterxx`
-	$(call build_image,$(IMG),mpi,asterxx,-asterxx)
+	@echo "building docker image from Dockerfile.mpi.asterxx" ; \
+	$(call source_env) ; \
+	docker build \
+		--build-arg https_proxy=$${https_proxy} \
+		--build-arg http_proxy=$${http_proxy} \
+		--build-arg no_proxy=$${no_proxy} \
+		-f ./Dockerfile.mpi.asterxx -t codeastersolver/codeaster-mpixx:latest . ; \
+	docker image tag codeastersolver/codeaster-mpi-asterxx:latest \
+	                 codeastersolver/codeaster-mpi-asterxx:$$(cat id.asterxx)
 
 clean: ## Remove unused docker data
 	docker system prune -f
