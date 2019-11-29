@@ -5,17 +5,15 @@ def configure(self):
     self.env['ADDMEM'] = 600
 
     self.env['TFELHOME'] = '/scif/apps/tfel'
-    with open('/scif/apps/tfel/scif/labels.json', 'r') as flab:
-        dlab = eval(flab.read())
-    self.env['TFELVERS'] = dlab['VERSION']
+    self.env['TFELVERS'] = '3.2.1'
     self.env['CATALO_CMD'] = "DUMMY="
 
     self.env.append_value('LIBPATH', [
         '/scif/apps/hdf5/lib',
         '/scif/apps/med/lib',
         '/scif/apps/metis/lib',
-        '/scif/apps/mumps-seq/lib',
-        '/scif/apps/scotch-seq/lib',
+        '/scif/apps/mumps_seq/lib',
+        '/scif/apps/scotch_seq/lib',
         '/scif/apps/tfel/lib',
     ])
 
@@ -23,9 +21,9 @@ def configure(self):
         '/scif/apps/hdf5/include',
         '/scif/apps/med/include',
         '/scif/apps/metis/include',
-        '/scif/apps/mumps-seq/include',
-        '/scif/apps/mumps-seq/include_seq',
-        '/scif/apps/scotch-seq/include',
+        '/scif/apps/mumps_seq/include',
+        '/scif/apps/mumps_seq/include_seq',
+        '/scif/apps/scotch_seq/include',
         '/scif/apps/tfel/include',
     ])
 

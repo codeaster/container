@@ -14,57 +14,56 @@ ENV DATA=/data
 # Show all the dependencies of each prerequisite even if some packages are
 # repeated
 ADD bld/build_common.sh /
-ADD bld/build_hdf5.sh /
-ADD bld/build_med.sh /
-ADD bld/build_metis.sh /
-ADD bld/build_parmetis.sh /
-ADD bld/build_tfel.sh /
-ADD bld/build_homard.sh /
-ADD bld/build_asrun.sh /
-ADD bld/build_scotch-seq.sh /
-ADD bld/build_scotch-mpi.sh /
-ADD bld/build_mumps-seq.sh /
-ADD bld/build_mumps-mpi.sh /
-ADD bld/build_petsc.sh /
-
 RUN /build_common.sh && /build_common.sh
 
 # hdf5
+ADD bld/build_hdf5.sh /
 RUN /build_hdf5.sh && rm -f /build_hdf5.sh
 
 # med
+ADD bld/build_med.sh /
 RUN /build_med.sh && rm -f /build_med.sh
 
 # metis
+ADD bld/build_metis.sh /
 RUN /build_metis.sh && rm -f /build_metis.sh
 
 # parmetis
+ADD bld/build_parmetis.sh /
 RUN /build_parmetis.sh && rm -f /build_parmetis.sh
 
 # tfel
+ADD bld/build_tfel.sh /
 RUN /build_tfel.sh && rm -f /build_tfel.sh
 
 # homard
+ADD bld/build_homard.sh /
 RUN /build_homard.sh && rm -f /build_homard.sh
 
 # asrun (graphical packages should be removed for servers)
+ADD bld/build_asrun.sh /
 RUN mkdir -p /scif/apps/asrun/lib
 ADD asrun.external_configuration.py /scif/apps/asrun/lib/external_configuration.py
 RUN /build_asrun.sh && rm -f /build_asrun.sh
 
 # scotch sequential
-RUN /build_scotch-seq.sh && rm -f /build_scotch-seq.sh
+ADD bld/build_scotch_seq.sh /
+RUN /build_scotch_seq.sh && rm -f /build_scotch_seq.sh
 
 # scotch parallel
-RUN /build_scotch-mpi.sh && rm -f /build_scotch-mpi.sh
+ADD bld/build_scotch_mpi.sh /
+RUN /build_scotch_mpi.sh && rm -f /build_scotch_mpi.sh
 
 # mumps sequential
-RUN /build_mumps-seq.sh && rm -f /build_mumps-seq.sh
+ADD bld/build_mumps_seq.sh /
+RUN /build_mumps_seq.sh && rm -f /build_mumps_seq.sh
 
 # mumps parallel
-RUN /build_mumps-mpi.sh && rm -f /build_mumps-mpi.sh
+ADD bld/build_mumps_mpi.sh /
+RUN /build_mumps_mpi.sh && rm -f /build_mumps_mpi.sh
 
 # petsc
+ADD bld/build_petsc.sh /
 RUN /build_petsc.sh && rm -f /build_petsc.sh
 
 # clean source directory

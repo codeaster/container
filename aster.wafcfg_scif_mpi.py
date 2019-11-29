@@ -7,17 +7,17 @@ def configure(self):
     scif_std.configure(self)
 
     self.env.prepend_value('LIBPATH', [
-        '/scif/apps/mumps-mpi/lib',
+        '/scif/apps/mumps_mpi/lib',
         '/scif/apps/parmetis/lib',
         '/scif/apps/petsc/lib',
-        '/scif/apps/scotch-mpi/lib',
+        '/scif/apps/scotch_mpi/lib',
     ])
 
     self.env.prepend_value('INCLUDES', [
-        '/scif/apps/mumps-mpi/include',
+        '/scif/apps/mumps_mpi/include',
         '/scif/apps/parmetis/include',
         '/scif/apps/petsc/include',
-        '/scif/apps/scotch-mpi/include',
+        '/scif/apps/scotch_mpi/include',
     ])
 
     # to fail if not found

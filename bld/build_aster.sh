@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=f1ab20d94ea4
-BASE=/work/codeaster
+BASE=/work/aster
 # source environment from parent image
 [ -f /.singularity.d/env/90-environment.sh ] && . /.singularity.d/env/90-environment.sh
 

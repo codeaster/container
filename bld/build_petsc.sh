@@ -12,8 +12,8 @@ cd petsc-src
     --with-mpi=1 \
     --with-ssl=0 \
     --with-x=0 \
-    --with-mumps-lib="-L/scif/apps/mumps-mpi/lib -lzmumps -ldmumps -lmumps_common -lpord -L/scif/apps/scotch-mpi/lib -lesmumps -lptscotch -lptscotcherr -lptscotcherrexit -lscotch -lscotcherr -lscotcherrexit -L/scif/apps/parmetis/lib -lparmetis -L/scif/apps/metis/lib -lmetis" \
-    --with-mumps-include=/scif/apps/mumps-mpi/include \
+    --with-mumps-lib="-L/scif/apps/mumps_mpi/lib -lzmumps -ldmumps -lmumps_common -lpord -L/scif/apps/scotch_mpi/lib -lesmumps -lptscotch -lptscotcherr -lptscotcherrexit -lscotch -lscotcherr -lscotcherrexit -L/scif/apps/parmetis/lib -lparmetis -L/scif/apps/metis/lib -lmetis" \
+    --with-mumps-include=/scif/apps/mumps_mpi/include \
     --with-blas-lapack-lib="-lopenblas -llapack -lblacsCinit-openmpi -lblacsF77init-openmpi -lblacs-openmpi" \
     --with-scalapack-lib="-lscalapack-openmpi" \
     --PETSC_ARCH=arch-linux2-codeaster \

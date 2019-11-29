@@ -69,10 +69,10 @@ bld/build_parmetis.sh /
 bld/build_tfel.sh /
 bld/build_homard.sh /
 bld/build_asrun.sh /
-bld/build_scotch-seq.sh /
-bld/build_scotch-mpi.sh /
-bld/build_mumps-seq.sh /
-bld/build_mumps-mpi.sh /
+bld/build_scotch_seq.sh /
+bld/build_scotch_mpi.sh /
+bld/build_mumps_seq.sh /
+bld/build_mumps_mpi.sh /
 bld/build_petsc.sh /
 
 %post
@@ -131,32 +131,32 @@ asrun.external_configuration.py lib/external_configuration.py
 /build_asrun.sh && rm -f /build_asrun.sh
 
 # scotch sequential
-%applabels scotch-seq
+%applabels scotch_seq
 Version 6.0.4_aster7
 
-%appinstall scotch-seq
-/build_scotch-seq.sh && rm -f /build_scotch-seq.sh
+%appinstall scotch_seq
+/build_scotch_seq.sh && rm -f /build_scotch_seq.sh
 
 # scotch parallel
-%applabels scotch-mpi
+%applabels scotch_mpi
 Version 6.0.4_aster7
 
-%appinstall scotch-mpi
-/build_scotch-mpi.sh && rm -f /build_scotch-mpi.sh
+%appinstall scotch_mpi
+/build_scotch_mpi.sh && rm -f /build_scotch_mpi.sh
 
 # mumps sequential
-%applabels mumps-seq
+%applabels mumps_seq
 Version 5.1.2_aster6
 
-%appinstall mumps-seq
-/build_mumps-seq.sh && rm -f /build_mumps-seq.sh
+%appinstall mumps_seq
+/build_mumps_seq.sh && rm -f /build_mumps_seq.sh
 
 # mumps parallel
-%applabels mumps-mpi
+%applabels mumps_mpi
 Version 5.1.2_aster6
 
-%appinstall mumps-mpi
-/build_mumps-mpi.sh && rm -f /build_mumps-mpi.sh
+%appinstall mumps_mpi
+/build_mumps_mpi.sh && rm -f /build_mumps_mpi.sh
 
 # petsc
 %applabels petsc
