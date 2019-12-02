@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=2019.0-1
-cd ${DATA}
+cd /work
 rm -rf asrun
 mkdir asrun
 wget --no-check-certificate --quiet \

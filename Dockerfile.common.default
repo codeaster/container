@@ -5,7 +5,6 @@ ENV LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 ENV DEVTOOLS_COMPUTER_ID=scif
 ENV LD_LIBRARY_PATH=/scif/apps/tfel/lib
 ENV PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages
-ENV DATA=/data
 
 # Use same filesystem organisation as for Singularity Apps
 # https://www.sylabs.io/guides/3.2/user-guide/definition_files.html#apps

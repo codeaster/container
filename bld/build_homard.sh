@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=11.12_aster2
-cd ${DATA}
+cd /work
 rm -rf homard
 mkdir homard
 wget --no-check-certificate --quiet \

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=5.1.2_aster6
-cd ${DATA}
+cd /work
 rm -rf mumps_mpi
 hg clone --noupdate https://bitbucket.org/code_aster/mumps mumps_mpi
 cd mumps_mpi

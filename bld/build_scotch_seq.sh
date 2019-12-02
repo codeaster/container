@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=6.0.4_aster7
-cd ${DATA}
+cd /work
 rm -rf scotch_seq
 hg clone --noupdate https://bitbucket.org/code_aster/scotch scotch_seq
 cd scotch_seq

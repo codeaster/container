@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=1.10.3
-cd ${DATA}
+cd /work
 rm -rf hdf5
 mkdir hdf5
 wget --no-check-certificate --quiet \
@@ -10,5 +10,4 @@ wget --no-check-certificate --quiet \
 tar xf hdf.tar.gz -C hdf5 --strip-components 1
 cd hdf5
 ./configure --prefix=/scif/apps/hdf5
-make -j 4
-make install
+make -j 4 && make install

@@ -57,7 +57,6 @@ export LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 export DEVTOOLS_COMPUTER_ID=scif
 export LD_LIBRARY_PATH=/scif/apps/tfel/lib
 export PYTHONPATH=/scif/apps/asrun/lib/python3.6/site-packages:/scif/apps/tfel/lib/python3.6/site-packages
-export DATA=${SINGULARITY_ROOTFS}/data
 alias ll='ls -lA'
 
 %files
@@ -168,7 +167,7 @@ Version 3.9.4_aster
 # clean source directory
 apt-get clean
 rm -rf /var/lib/apt/lists/* /var/tmp/*
-rm -rf ${DATA}
+rm -rf /work
 
 # aster
 %appfiles aster

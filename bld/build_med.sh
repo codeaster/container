@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=4.0.0
-cd ${DATA}
+cd /work
 rm -rf med
 mkdir med
 wget --no-check-certificate --quiet \
@@ -13,7 +13,6 @@ alias python=python3
 F77=gfortran CXXFLAGS='-std=gnu++98' PYTHON=/usr/bin/python3 \
     ./configure --disable-mesgerr --with-hdf5=/scif/apps/hdf5 \
         --prefix=/scif/apps/med
-make -j 4
-make install
+make -j 4 && make install
 # documentation costs ~100 MB
 rm -rf /scif/apps/med/share/doc/med

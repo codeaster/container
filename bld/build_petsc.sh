@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=3.9.4_aster
-cd ${DATA}
+cd /work
 rm -rf petsc
 hg clone --noupdate https://bitbucket.org/code_aster/petsc
 cd petsc
@@ -17,11 +17,11 @@ cd petsc-src
     --with-blas-lapack-lib="-lopenblas -llapack -lblacsCinit-openmpi -lblacsF77init-openmpi -lblacs-openmpi" \
     --with-scalapack-lib="-lscalapack-openmpi" \
     --PETSC_ARCH=arch-linux2-codeaster \
-    --download-ml=${DATA}/petsc/3rd/petsc-pkg-ml-e5040d11aa07.tar.gz \
-    --download-hypre=${DATA}/petsc/3rd/hypre-2.14.0.tar.gz \
-    --download-superlu=${DATA}/petsc/3rd/superlu-a0819410c9eb779f9b296cdd95fbdfd96986ae10.tar.gz \
+    --download-ml=/work/petsc/3rd/petsc-pkg-ml-e5040d11aa07.tar.gz \
+    --download-hypre=/work/petsc/3rd/hypre-2.14.0.tar.gz \
+    --download-superlu=/work/petsc/3rd/superlu-a0819410c9eb779f9b296cdd95fbdfd96986ae10.tar.gz \
     --with-openmp=0 \
     LIBS=-lgomp \
     --prefix=/scif/apps/petsc
-make -j 4 PETSC_DIR=${DATA}/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster all
-make -j 4 PETSC_DIR=${DATA}/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster install
+make -j 4 PETSC_DIR=/work/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster all
+make -j 4 PETSC_DIR=/work/petsc/petsc-src PETSC_ARCH=arch-linux2-codeaster install

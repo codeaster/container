@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=3.2.1
-cd ${DATA}
+cd /work
 rm -rf tfel
 mkdir tfel
 wget --no-check-certificate --quiet \
@@ -26,6 +26,5 @@ cmake .. \
     -DPYTHON_LIBRARY:FILEPATH=/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/libpython3.6.so \
     -DPYTHON_INCLUDE_DIR:PATH=/usr/include/python3.6 \
     -DCMAKE_INSTALL_PREFIX=/scif/apps/tfel
-make -j 4
-make install
+make -j 4 && make install
 ln -s /scif/apps/tfel/bin/mfront-${VERSION} /usr/local/bin/

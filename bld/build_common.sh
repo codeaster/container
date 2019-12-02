@@ -34,4 +34,4 @@ apt-get install -y \
 
 locale-gen en_GB.UTF-8 en_US.UTF-8 fr_FR.UTF-8
 update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
-mkdir -p ${DATA}
+mkdir -p /work
