@@ -37,7 +37,7 @@ This command will create some files near the image.
 
 %files
     run_testcases /usr/local/bin/
-    build_aster.sh /
+    bld/build_aster.sh /
 
 # aster
 %appinstall aster

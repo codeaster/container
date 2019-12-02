@@ -1,0 +1,13 @@
+FROM codeastersolver/codeaster-seq:latest
+
+# salome_meca 2019.0.1 universal + code_aster 15.0.16 sequential.
+
+ADD salome_meca-2019.0.1-2-LGPL.run /salome_meca.run
+ADD bld/build_salome_meca.sh /
+
+ENV PATH=$PATH:/scif/apps/salome_meca/appli_V2019_univ
+
+USER root
+RUN /build_salome_meca.sh && rm -f /build_salome_meca.sh
+
+USER aster

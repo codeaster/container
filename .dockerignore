@@ -1,7 +1,9 @@
 # ignore
+Dockerfile*
+env.d/*
+id.*
+images/
 Makefile
 README.md
-Dockerfile*
 Singularity*
-env.d/*
-images/
+*.sif

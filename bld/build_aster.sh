@@ -34,10 +34,10 @@ hg pull --rev ${VERSION} && hg update ${VERSION}
 
 
 cd ${BASE}/src
-./waf configure \
+./waf configure install \
     --prefix=/scif/apps/aster \
     --use-config-dir=/scif/apps/aster/lib --use-config=scif_std
-./waf install
+[ $? -ne 0 ] && exit 1
 
 # clean config.txt
 grep -v /work /scif/apps/aster/share/aster/config.txt > config.tmp
